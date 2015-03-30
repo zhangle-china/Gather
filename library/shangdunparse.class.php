@@ -35,21 +35,17 @@ class CShangDunParse extends CParse{
 		// TODO: Auto-generated method stub
 		$result = array();
 		//for($i=1;$i<=88437;$i++){
-		for($i=1;$i<=1000;$i++){
+		for($i=1;$i<=100;$i++){
 			$url = "http://www.shangdun.org/exploit/";
-			
 			$post1 = "KTcx=".urlencode("请输入您的查询内容");
 			$post1 .= "&md3=".urlencode("申请人");
 			$post1 .= "&PG3=$i";
 			$post1 .= "&sTypeSM2=".urlencode("商标已注册");
 			$post1 .= "&sTypeSMmark2=1";
 			$post1 .= "&BDdates=1";
-			
-		
 			$url .= "?".$post1;
 			$result[] = $url;
 		}
-		
 		return $result;
 	} 
 
@@ -83,21 +79,36 @@ class CShangDunParse extends CParse{
 	 */
 	public function ArcContentParse($content) {
 		// TODO: Auto-generated method stub
-		
 		$result = array();
 		if(!preg_match('~<div id="showDatas">(.*)</div>~isU', $content,$matchs)) return false;
 		$content = $matchs[1];
 		if(!preg_match_all('~<td class="(?:TBdt1|Timg1)">(.*)</td>.*<td class="(?:TBdt\d(?:\stdp)?|Timg\d)">(.*)</td>~isU', $content,$matchs)) return false;
+	
 		foreach ($matchs[1] as $key=>$kValue){
 			$label = trim(strip_tags($kValue));
 			if($label == "商标图像"){
 				preg_match('~<img.*src="(.*)".*>~isU',$matchs[2][$key],$match);
-			 	$value = $match[1];
+				$value = $match[1];
+				$title[] = "原图地址";
+				$valueList[] = $value;
+			 	$targetDir = dirname(dirname("__FILE__"))."/download/image";
+			 	$Index = count(scandir($targetDir));
+			 	$tempDir = $targetDir."/".($Index-1);
+			 	if(is_dir($tempDir)){
+			 		if(count(scandir($tempDir))%10 == 0) $tempDir = $targetDir."/".$Index;
+			 	}
+			 	else{
+			 		$tempDir = $targetDir."/".($Index);
+			 	}
+			 	$targetDir = $tempDir;
+			 	if(!$value = CImage::CopyImage($value,$targetDir)) $value  = "";
 			}else{
 				$value = strip_tags($matchs[2][$key]);
 			}
-			$result[] = array("lable"=>$kValue,"value"=>$value);
+			$title[] = $label;
+			$valueList[] = $value;
 		}
+		$result = array("title"=>$title,"value"=>$valueList);
 		return $result;
 	}
 	

@@ -1,5 +1,5 @@
 <?php
 interface IDataSave{
-	function Save();
+	function Save($data);
 }
 
