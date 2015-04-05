@@ -6,49 +6,43 @@ class CNormalGather extends CGather{
 	 */
 	public function Start() {
 		// TODO: Auto-generated method stub
-		$runtime = new CRunTime();
 		if(!($pages = $this->objParse->ListUrlParse())){
 			$this->objLog->PrintError("获取url列表失败！");
 			die();
 		}
 		$i = 0;
 		foreach($pages as $url){
+			$i++;
+			echo "$i,";
+			if($i%30==0) echo "<br>";
+			ob_flush();
+			flush();
 			$datalsit = array();
-			$runtime->start();
 			$content = $this->objParse->getUrlContent($url);
-			echo "提取文章列表内容，用时：".$runtime->get_format_time()."<br>";
-			$runtime->start();
 			$arcUrls = $this->objParse->ArcUrlParse($content);
-			echo "解析文章URL，用时：".$runtime->get_format_time()."<br>";
 			if(!$arcUrls){
-				$this->objLog->PrintError("获取文章url失败！");
+				$this->objLog->PrintError("获取文章url失败！listUrl:".$url);
 				continue;
 			}
 			
 			foreach($arcUrls as $acrUrl){
-				$runtime->start();
 				$arcContent = $this->objParse->getUrlContent($acrUrl);
-				echo "取得文章内容，用时：".$runtime->get_format_time()."<br>";
-				
-				$runtime->start();
+				if(!$arcContent){
+					$this->objLog->PrintError("获取文章内容失败！arcurl:".$url);
+					continue;
+				}
 				$res =  $this->objParse->ArcContentParse($arcContent);
-				echo "解析数据，用时：".$runtime->get_format_time()."<br>";
-				
+				if(!$res){
+					$this->objLog->PrintError("解析文章内容失败！arcurl:".$url);
+					continue;
+				}
 				if(!empty($res["title"]) && empty($datalsit["title"])) $datalsit["title"] = $res["title"];
 				$datalsit["value"][] = $res["value"];
-				ob_flush();
-				flush();
 			}
-			die();
-			$runtime->start();
-			$this->objLog->PrintNormal("成功解析".$i++."页");
+			$this->objLog->PrintNormal("成功解析".$i."页");
 			$this->objDataSave->Save($datalsit);
-			echo "保存数据，用时：".$runtime->get_format_time()."<br>";
-			die();
-			
 		}
 		
-		echo date("Y-m-d H:i:s",time());
 	}
 
 }

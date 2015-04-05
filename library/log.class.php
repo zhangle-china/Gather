@@ -40,7 +40,7 @@ class CLog{
 		$fileName = $this->logDir."log-".date("Ymd",time()).".log";
 		$hf = fopen($fileName, "a+");
 		if(!$hf) return false;
-		fwrite($hf, "[".LogType::ToString($type)."]".date("Y-m-d H:i:s -> ").$msg."\n");
+		fwrite($hf, "[".LogType::ToString($type)."]".date("Y-m-d H:i:s -> ").$msg."\r\n");
 		fclose($hf);
 	}
 	

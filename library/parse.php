@@ -1,5 +1,6 @@
 <?php
 abstract class CParse{
+	
 	/**
 	 * 从给定的文章中解析，或自定义页面地址列表。
 	 * @param string $content

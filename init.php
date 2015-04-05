@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL^E_WARNING^E_NOTICE);
 require_once 'library/gather.class.php';
 require_once 'library/datasave.class.php';
 require_once 'library/log.class.php';

@@ -1,8 +1,11 @@
 <?php
 class CShangDunParse extends CParse{
-	
-	
-	
+	private $startPage;
+	private $endPage;
+	function __construct($startPage=0,$endPage=88437){
+		$this->startPage = $startPage;
+		$this->endPage = $endPage;
+	}
 	/* (non-PHPdoc)
 	 * @see CParse::getUrlContent()
 	 */
@@ -35,7 +38,7 @@ class CShangDunParse extends CParse{
 		// TODO: Auto-generated method stub
 		$result = array();
 		//for($i=1;$i<=88437;$i++){
-		for($i=1;$i<=100;$i++){
+		for($i=$this->startPage;$i<=$this->endPage;$i++){
 			$url = "http://www.shangdun.org/exploit/";
 			$post1 = "KTcx=".urlencode("请输入您的查询内容");
 			$post1 .= "&md3=".urlencode("申请人");
@@ -83,25 +86,27 @@ class CShangDunParse extends CParse{
 		if(!preg_match('~<div id="showDatas">(.*)</div>~isU', $content,$matchs)) return false;
 		$content = $matchs[1];
 		if(!preg_match_all('~<td class="(?:TBdt1|Timg1)">(.*)</td>.*<td class="(?:TBdt\d(?:\stdp)?|Timg\d)">(.*)</td>~isU', $content,$matchs)) return false;
-	
 		foreach ($matchs[1] as $key=>$kValue){
 			$label = trim(strip_tags($kValue));
 			if($label == "商标图像"){
-				preg_match('~<img.*src="(.*)".*>~isU',$matchs[2][$key],$match);
-				$value = $match[1];
-				$title[] = "原图地址";
-				$valueList[] = $value;
-			 	$targetDir = dirname(dirname("__FILE__"))."/download/image";
-			 	$Index = count(scandir($targetDir));
-			 	$tempDir = $targetDir."/".($Index-1);
-			 	if(is_dir($tempDir)){
-			 		if(count(scandir($tempDir))%10 == 0) $tempDir = $targetDir."/".$Index;
-			 	}
-			 	else{
-			 		$tempDir = $targetDir."/".($Index);
-			 	}
-			 	$targetDir = $tempDir;
-			 	if(!$value = CImage::CopyImage($value,$targetDir)) $value  = "";
+				$value = "";
+				if(preg_match('~<img.*src="(.*)".*>~isU',$matchs[2][$key],$match)){
+					$value = $match[1];
+					$title[] = "原图地址";
+					$valueList[] = $value;
+				 	$targetDir = dirname(dirname("__FILE__"))."/download/image";
+				 	$Index = count(scandir($targetDir));
+				 
+				 	$tempDir = $targetDir."/".($Index-1);
+				 	if(is_dir($tempDir)){
+				 		if(count(scandir($tempDir))%3000 == 0) $tempDir = $targetDir."/".$Index;
+				 	}
+				 	else{
+				 		$tempDir = $targetDir."/".($Index);
+				 	}
+				 	$targetDir = $tempDir;
+				 	if(!$value = CImage::CopyImage($value,$targetDir)) $value  = "";
+				}
 			}else{
 				$value = strip_tags($matchs[2][$key]);
 			}

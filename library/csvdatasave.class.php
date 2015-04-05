@@ -1,7 +1,8 @@
 <?php
 class CCsvDataSave implements IDataSave{
 	private $fileName;
-	function __construct($fileName = ""){
+	private $log;
+	function __construct($fileName = "",CLog $log){
 		if(!empty($fileName)){
 			$this->fileName = $fileName;
 		}
@@ -10,6 +11,8 @@ class CCsvDataSave implements IDataSave{
 		}
 		$dir = dirname($this->fileName);
 		if(!is_dir($dir)) mkdir($dir,777,true);
+		
+		$this->log = $log;
 	}
 	
 	function setFileName($fileName){
@@ -26,10 +29,14 @@ class CCsvDataSave implements IDataSave{
 		$f = fopen($this->fileName,'a+');
 		if(empty($data["value"])) return false;
 		if(isset($data["title"]) && !@filesize($this->fileName)){
-			fputcsv($f, $data["title"]);
+			if(!@fputcsv($f, $data["title"])){
+				$this->log->PrintError("writeTitleError£º".implode("|", $v));
+			}
 		}
 		foreach ($data["value"] as $v){
-				fputcsv($f, $v);		
+			if(!@fputcsv($f, $v)){
+				$this->log->PrintError("saveError£º".implode("|", $v));
+			}		
 		}
 		fclose($f);
 		return true;
