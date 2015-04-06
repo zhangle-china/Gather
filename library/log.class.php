@@ -1,12 +1,11 @@
 <?php
-define("ROOT",dirname(dirname(__FILE__)));
-
 class CLog{
 	protected $outputType;
 	protected $logDir;
 	function __construct(){
 		$this->outputType = LogOutputType::SCREEN;
-		$this->logDir = ROOT."/";
+		$this->logDir = ROOT."/log/";
+		if(!is_dir($this->logDir)) mkdir($this->logDir);
 	}
 	
 	/**

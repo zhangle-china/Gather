@@ -1,10 +1,8 @@
 <?php
 class CShangDunParse extends CParse{
-	private $startPage;
-	private $endPage;
+
 	function __construct($startPage=0,$endPage=88437){
-		$this->startPage = $startPage;
-		$this->endPage = $endPage;
+		parent::__construct($startPage, $endPage);
 	}
 	/* (non-PHPdoc)
 	 * @see CParse::getUrlContent()
@@ -94,7 +92,8 @@ class CShangDunParse extends CParse{
 					$value = $match[1];
 					$title[] = "‘≠Õºµÿ÷∑";
 					$valueList[] = $value;
-				 	$targetDir = dirname(dirname("__FILE__"))."/download/image";
+					/*
+				 	$targetDir = dirname(dirname("__FILE__"))."/data/download/image";
 				 	$Index = count(scandir($targetDir));
 				 
 				 	$tempDir = $targetDir."/".($Index-1);
@@ -106,6 +105,8 @@ class CShangDunParse extends CParse{
 				 	}
 				 	$targetDir = $tempDir;
 				 	if(!$value = CImage::CopyImage($value,$targetDir)) $value  = "";
+				 	*/
+					$value = "";
 				}
 			}else{
 				$value = strip_tags($matchs[2][$key]);

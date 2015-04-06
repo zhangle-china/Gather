@@ -1,6 +1,20 @@
 <?php
 abstract class CParse{
+	protected  $startPage;
+	protected  $endPage;
+	function __construct($startPage,$endPage){
+		$this->startPage = $startPage;
+		$this->endPage = $endPage;
+		
+	}
 	
+	function getStartPageNum(){
+		return $this->startPage;
+	}
+	
+	function getEndPageNum(){
+		return $this->endPage;
+	}
 	/**
 	 * 从给定的文章中解析，或自定义页面地址列表。
 	 * @param string $content

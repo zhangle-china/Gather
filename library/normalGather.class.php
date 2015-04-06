@@ -1,6 +1,7 @@
 <?php
-class CNormalGather extends CGather{
-	
+class CNormalGather extends CGather implements ISubject{
+	private $observerLsit;
+	private $status;
 	/* (non-PHPdoc)
 	 * @see CGather::Start()
 	 */
@@ -10,13 +11,17 @@ class CNormalGather extends CGather{
 			$this->objLog->PrintError("获取url列表失败！");
 			die();
 		}
-		$i = 0;
+		$this->status["startpage"] = $this->objParse->getStartPageNum();
+		
+		$this->status["endpage"] = $this->objParse->getEndPageNum();
+		$this->status["pageindex"]  = $i = 0;
+	
 		foreach($pages as $url){
-			$i++;
-			echo "$i,";
-			if($i%30==0) echo "<br>";
+			echo $this->status["startpage"] .",";
+			if($this->status["startpage"] % 30==0) echo "<br>";
 			ob_flush();
 			flush();
+			
 			$datalsit = array();
 			$content = $this->objParse->getUrlContent($url);
 			$arcUrls = $this->objParse->ArcUrlParse($content);
@@ -26,6 +31,7 @@ class CNormalGather extends CGather{
 			}
 			
 			foreach($arcUrls as $acrUrl){
+				
 				$arcContent = $this->objParse->getUrlContent($acrUrl);
 				if(!$arcContent){
 					$this->objLog->PrintError("获取文章内容失败！arcurl:".$url);
@@ -38,11 +44,29 @@ class CNormalGather extends CGather{
 				}
 				if(!empty($res["title"]) && empty($datalsit["title"])) $datalsit["title"] = $res["title"];
 				$datalsit["value"][] = $res["value"];
-			}
-			$this->objLog->PrintNormal("成功解析".$i."页");
+			}		
+			$this->objLog->PrintNormal("成功解析到第".$this->status["startpage"]."页");
 			$this->objDataSave->Save($datalsit);
+			$this->status["startpage"] = $this->status["startpage"] +1;
+			$this->status["datafile"] = $this->objDataSave->GetDataFile();
+			$this->notifiy();
 		}
-		
+	}
+	
+	function attach($observer){
+		$this->observerLsit[] = $observer;
 	}
 
+	function deAttch($observer){
+		foreach($this->observerLsit as $key=>$o){
+			if($o == $observer) unset($this->observerLsit[$key]);
+		}
+	}
+	
+	function notifiy(){
+		foreach($this->observerLsit as $observer){
+			var_dump($this->status);
+			$observer->update($this->status);
+		}
+	}
 }
