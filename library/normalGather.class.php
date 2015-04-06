@@ -65,7 +65,6 @@ class CNormalGather extends CGather implements ISubject{
 	
 	function notifiy(){
 		foreach($this->observerLsit as $observer){
-			var_dump($this->status);
 			$observer->update($this->status);
 		}
 	}
