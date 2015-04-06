@@ -3,3 +3,5 @@
 .project
 download/
 *.csv
+data/
+log/
