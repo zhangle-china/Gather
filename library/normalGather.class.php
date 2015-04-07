@@ -31,7 +31,6 @@ class CNormalGather extends CGather implements ISubject{
 			}
 			
 			foreach($arcUrls as $acrUrl){
-				
 				$arcContent = $this->objParse->getUrlContent($acrUrl);
 				if(!$arcContent){
 					$this->objLog->PrintError("获取文章内容失败！arcurl:".$url);

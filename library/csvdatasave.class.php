@@ -12,6 +12,9 @@ class CCsvDataSave implements IDataSave{
 		$dir = dirname($this->fileName);
 		if(!is_dir($dir)) mkdir($dir,777,true);
 		
+		$file =  $this->fileName;
+		
+		
 		$this->log = $log;
 	}
 	
@@ -31,7 +34,6 @@ class CCsvDataSave implements IDataSave{
 		$ext = substr($basefilename,$index);
 		$num = 1;
 		$newfile = preg_replace("~(\S+_)(\d+)$~iseU","ch('$1',$2)", $filename);
-		;
 		if($newfile == $filename){
 			$newfile .= "_1";
 		}
@@ -46,6 +48,7 @@ class CCsvDataSave implements IDataSave{
 	 */
 	public function Save($data) {
 		// TODO: Auto-generated method stub
+
 		if(filesize($this->fileName)/pow(1024,2) > 5){ //如果文件大小大于5M，自动生成下一个文件
 			$this->fileName = $this->CreatePartFile($this->fileName);
 		}

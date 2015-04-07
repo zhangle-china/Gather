@@ -16,7 +16,8 @@ if($_POST){
 	$end = $params["endpage"];
 	
 	$parse = new CShangDunParse($start,$end);
-	$datasave = new CCsvDataSave($params["datafile"],$log);
+    $dir = addslashes($params["datafile"]);
+	$datasave = new CCsvDataSave($dir,$log);
 	$gather = new CNormalGather($log,$datasave,$parse);
 	$observer = new CObserver($config);
 	$gather->attach($observer);
