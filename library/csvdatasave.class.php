@@ -52,6 +52,12 @@ class CCsvDataSave implements IDataSave{
 		if(filesize($this->fileName)/pow(1024,2) > 5){ //如果文件大小大于5M，自动生成下一个文件
 			$this->fileName = $this->CreatePartFile($this->fileName);
 		}
+		else{
+			echo "<br>";
+			echo $this->fileName."<br>";
+			var_dump(filesize($this->fileName));
+			echo "<br>";
+		}
 		$f = fopen($this->fileName,'a+');
 		if(empty($data["value"])) return false;
 		if(isset($data["title"]) && !@filesize($this->fileName)){
