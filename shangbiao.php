@@ -14,10 +14,8 @@ if($_POST){
 	echo "----------------------------开始采集-----------------------------------------<br>";
 	$start = $params["startpage"];
 	$end = $params["endpage"];
-	
 	$parse = new CShangDunParse($start,$end);
-    $dir = addslashes($params["datafile"]);
-	$datasave = new CCsvDataSave($dir,$log);
+	$datasave = new CCsvDataSave($params["datafile"],$log);
 	$gather = new CNormalGather($log,$datasave,$parse);
 	$observer = new CObserver($config);
 	$gather->attach($observer);
