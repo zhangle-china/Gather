@@ -26,8 +26,10 @@ class CCsvDataSave implements IDataSave{
 		return $this->fileName;
 	}
 	function CreatePartFile($basefilename){
-		function ch($str,$num){
-			return $str.($num+1);
+		if(!function_exists("ch")){
+			function ch($str,$num){
+				return $str.($num+1);
+			}
 		}
 		$index = strrpos($basefilename, ".");
 		$filename = substr($basefilename,0,$index);
