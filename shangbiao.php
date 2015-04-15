@@ -2,8 +2,10 @@
 require_once 'init.php';
 $config = new CConfig(ROOT."/data/config-shangdun.php");
 $params = $config->Params();
-$params["startpage"] || $params["startpage"] = 1;
-$params["endpage"] || $params["endpage"] = 3;
+intval($_REQUEST["s"]) && $params["startpage"] = intval($_REQUEST["s"]);
+intval($_REQUEST["e"]) && $params["endpage"] = intval($_REQUEST["e"]);
+$params["startpage"] ||$params["startpage"] = 1;
+$params["endpage"] || $params["endpage"] = 10000;
 if($params["endpage"] - $params["startpage"] === -1) $endFlag = true;
 
 if($_POST){
