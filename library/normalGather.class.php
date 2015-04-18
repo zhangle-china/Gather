@@ -44,8 +44,8 @@ class CNormalGather extends CGather implements ISubject{
 				if(!empty($res["title"]) && empty($datalsit["title"])) $datalsit["title"] = $res["title"];
 				$datalsit["value"][] = $res["value"];
 			}		
-			$this->objLog->PrintNormal("成功解析到第".$this->status["startpage"]."页");
 			$this->objDataSave->Save($datalsit);
+			$this->objLog->PrintNormal("成功采集到第".$this->status["startpage"]."页");
 			$this->status["startpage"] = $this->status["startpage"] +1;
 			$this->status["datafile"] = $this->objDataSave->GetDataFile();
 			$this->notifiy();
