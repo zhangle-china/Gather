@@ -17,6 +17,13 @@ class CLog{
 		if(!in_array($value,LogOutputType::TypeList())) return false;
 		$this->outputType = $value;
 	}
+	/**
+	 * 取得当前的日志输出类型
+	 * @return Ambigous <const, number>
+	 */
+	function GetOutputType(){
+		return $this->outputType;
+	}
 	function PrintError($msg){
 		$this->PrintLog($msg,LogType::ERROR);
 	}

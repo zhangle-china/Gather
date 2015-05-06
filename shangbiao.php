@@ -21,6 +21,9 @@ if($_POST){
 	$gather = new CNormalGather($log,$datasave,$parse);
 	$observer = new CObserver($config);
 	$gather->attach($observer);
+	$process = new CProccessObserver();
+	$gather->attach($process);
+	
 	$gather->Start();	
 	die("<script>window.location.href='shangbiao.php';</script>");
 }

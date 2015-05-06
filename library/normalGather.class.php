@@ -8,44 +8,39 @@ class CNormalGather extends CGather implements ISubject{
 	public function Start() {
 		// TODO: Auto-generated method stub
 		if(!($pages = $this->objParse->ListUrlParse())){
-			$this->objLog->PrintError("»ñÈ¡urlÁÐ±íÊ§°Ü£¡");
+			$this->objLog->PrintError("èŽ·å–urlåˆ—è¡¨å¤±è´¥ï¼");
 			die();
 		}
 		$this->status["startpage"] = $this->objParse->getStartPageNum();
-		
 		$this->status["endpage"] = $this->objParse->getEndPageNum();
 		$this->status["pageindex"]  = $i = 0;
 	
 		foreach($pages as $url){
-			echo $this->status["startpage"] .",";
-			if($this->status["startpage"] % 30==0) echo "<br>";
-			ob_flush();
-			flush();
-			
+			$this->status["pageindex"]++;
 			$datalsit = array();
 			$content = $this->objParse->getUrlContent($url);
 			$arcUrls = $this->objParse->ArcUrlParse($content);
 			if(!$arcUrls){
-				$this->objLog->PrintError("»ñÈ¡ÎÄÕÂurlÊ§°Ü£¡listUrl:".$url);
+				$this->objLog->PrintError("èŽ·å–æ–‡ç« urlå¤±è´¥ï¼listUrl:".$url);
 				continue;
 			}
 			
 			foreach($arcUrls as $acrUrl){
 				$arcContent = $this->objParse->getUrlContent($acrUrl);
 				if(!$arcContent){
-					$this->objLog->PrintError("»ñÈ¡ÎÄÕÂÄÚÈÝÊ§°Ü£¡arcurl:".$url);
+					$this->objLog->PrintError("èŽ·å–æ–‡ç« å†…å®¹å¤±è´¥ï¼arcurl:".$url);
 					continue;
 				}
 				$res =  $this->objParse->ArcContentParse($arcContent);
 				if(!$res){
-					$this->objLog->PrintError("½âÎöÎÄÕÂÄÚÈÝÊ§°Ü£¡arcurl:".$url);
+					$this->objLog->PrintError("è§£æžæ–‡ç« å†…å®¹å¤±è´¥ï¼arcurl:".$url);
 					continue;
 				}
 				if(!empty($res["title"]) && empty($datalsit["title"])) $datalsit["title"] = $res["title"];
 				$datalsit["value"][] = $res["value"];
 			}		
 			$this->objDataSave->Save($datalsit);
-			$this->objLog->PrintNormal("³É¹¦²É¼¯µ½µÚ".$this->status["startpage"]."Ò³");
+			$this->objLog->PrintNormal("æˆåŠŸé‡‡é›†åˆ°ç¬¬".$this->status["startpage"]."é¡µ");
 			$this->status["startpage"] = $this->status["startpage"] +1;
 			$this->status["datafile"] = $this->objDataSave->GetDataFile();
 			$this->notifiy();

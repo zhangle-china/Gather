@@ -44,15 +44,15 @@ class CCsvDataSave implements IDataSave{
 		return $newfile;
 	}
 	/**
-	 * ½«Êý¾Ý±£ÒÔcsvÎÄ¼þ¸ñÊ½±£´æ
-	 * @param Array $data; ÒªÇóÓÐtitleºÍvalueÁ½¸öÏÂ±ê£¬titleÓÃÓÚ´æ·Å±êÌâ£¬¿ÉÒÔÎª¿Õ£¬valueÓÃÓÚ´æ·Å¾ßÌåÖµ£¬²»ÄÜÎª¿Õ  
+	 * å°†æ•°æ®ä¿ä»¥csvæ–‡ä»¶æ ¼å¼ä¿å­˜
+	 * @param Array $data; è¦æ±‚æœ‰titleå’Œvalueä¸¤ä¸ªä¸‹æ ‡ï¼Œtitleç”¨äºŽå­˜æ”¾æ ‡é¢˜ï¼Œå¯ä»¥ä¸ºç©ºï¼Œvalueç”¨äºŽå­˜æ”¾å…·ä½“å€¼ï¼Œä¸èƒ½ä¸ºç©º  
 	 * @see IDataSave::Save()
 	 */
 	public function Save($data) {
 		// TODO: Auto-generated method stub
 		clearstatcache();
 		$filesize = filesize($this->fileName);
-		if($filesize/pow(1024,2) > 10){ //Èç¹ûÎÄ¼þ´óÐ¡´óÓÚ10M£¬×Ô¶¯Éú³ÉÏÂÒ»¸öÎÄ¼þ
+		if($filesize/pow(1024,2) > 10){ //å¦‚æžœæ–‡ä»¶å¤§å°å¤§äºŽ10Mï¼Œè‡ªåŠ¨ç”Ÿæˆä¸‹ä¸€ä¸ªæ–‡ä»¶
 			$this->fileName = $this->CreatePartFile($this->fileName);
 		}
 		
@@ -60,12 +60,12 @@ class CCsvDataSave implements IDataSave{
 		if(empty($data["value"])) return false;
 		if(isset($data["title"]) && !$filesize){
 			if(!@fputcsv($f, $data["title"])){
-				$this->log->PrintError("writeTitleError£º".implode("|", $v));
+				$this->log->PrintError("writeTitleErrorï¼š".implode("|", $v));
 			}
 		}
 		foreach ($data["value"] as $v){
 			if(!@fputcsv($f, $v)){
-				$this->log->PrintError("saveError£º".implode("|", $v));
+				$this->log->PrintError("saveErrorï¼š".implode("|", $v));
 			}		
 		}
 		fclose($f);

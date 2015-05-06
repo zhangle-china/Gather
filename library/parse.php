@@ -37,6 +37,7 @@ abstract class CParse{
 	 */
 	abstract function ArcContentParse($content);
 	
+	abstract function getUrlContent($url);
 	
 	/**
 	 * 从给定的URL中取得页面内容
