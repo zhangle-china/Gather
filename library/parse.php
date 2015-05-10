@@ -16,31 +16,33 @@ abstract class CParse{
 		return $this->endPage;
 	}
 	/**
-	 * ´Ó¸ø¶¨µÄÎÄÕÂÖĞ½âÎö£¬»ò×Ô¶¨ÒåÒ³ÃæµØÖ·ÁĞ±í¡£
+	 * ï¿½Ó¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½Ö·ï¿½Ğ±?
 	 * @param string $content
 	 * @return Array 
 	 */
-	abstract function ListUrlParse($content=null);
+	abstract function ListUrlParse($content=null,$sourcePath="");
 	
 	/**
-	 * ´Ó¸ø¶¨µÄÄÚÈİÖĞ½âÎö³öÎÄÕÂµÄURLµØÖ·
-	 * @param unknown $content
+	 * ä»ç»™å®šçš„å†…å®¹ä¸­è§£æå‡ºæ–‡ç« çš„åœ°å€
+	 * @param unknown $content æ–‡ç« å†…å®¹
+	 * @param string $sourcePath æ–‡ç« æºåœ°å€
 	 * @return Array
 	 */
-	abstract function ArcUrlParse($content);
+	abstract function ArcUrlParse($content,$sourcePath="");
 	
 	
 	/**
-	 * ´ÓÎÄÕÂÄÚÈİÖĞ½âÎö³öÓĞĞ§Öµ
-	 * @param unknown $content
-	 * @return Array ÓĞtitleºÍvalueÁ½¸ö¼ü£¬·Ö±ğ´æ·Å ±êÌâ ºÍ Öµ
+	 * ä»æ–‡ç« å†…å®¹ä¸­è§£ææ‰€éœ€è¦çš„æ•°æ®
+	 * @param string $content
+	 * @param string $sourcePath æ–‡ç« æºåœ°å€
+	 * @return Array ï¿½ï¿½titleï¿½ï¿½valueï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Öµ
 	 */
-	abstract function ArcContentParse($content);
+	abstract function ArcContentParse($content,$sourcePath="");
 	
 	abstract function getUrlContent($url);
 	
 	/**
-	 * ´Ó¸ø¶¨µÄURLÖĞÈ¡µÃÒ³ÃæÄÚÈİ
+	 * ï¿½Ó¸ï¿½ï¿½URLï¿½ï¿½È¡ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @param String $url
 	 * @param Array $option
 	 * @return mixed

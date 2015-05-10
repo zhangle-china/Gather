@@ -1,6 +1,7 @@
 <?php
 class CDlgl_Sipo_Gov_Cn extends CParse{
-
+	private $_area;
+	private $_curArea;
 	public function __construct() {
 		// TODO: Auto-generated method stub
 		parent::__construct(0,0);
@@ -18,33 +19,45 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 		return $this->XCurl($url, $option);
 	}
 	
-	
-	public function ListUrlParse($content = null) {
+	public function ListUrlParse($content = null,$sourcePath="") {
 		$url = "http://dlgl.sipo.gov.cn/txnqueryAgencyOrg.do";
 		$content = $this->getUrlContent($url);
+		die($content);
 		if(!$content) die("列表获取失败 $url");
 		$pattner = '~<table class="indcontcrltab">.+<tbody>(.+)</tbody>~isU';
 		
 		if(!preg_match($pattner, $content,$match)) return false;
 		$content = $match[1];
-		$pattner = '~<td>.+queryAgencyInfoList\(\'(\S+)\'.+<td>(\d+)</td>~isU';
+		$pattner = '~<td>.+queryAgencyInfoList\(\'(\S+)\'.+>(\S+)</a>.*<td>(\d+)</td>~isU';
 		if(!preg_match_all($pattner,$content,$match))  return false;
 		$result = array();
 		foreach($match[1] as $key=>$area){
 			if($area == "null") continue;
-			$pageCount = intval($match[2][$key]);
+			$pageCount = intval($match[3][$key]);
+			$this->_area[$area] = $match[2][$key];
 			for($page=1;$page<=$pageCount;$page++){
 				$url = "http://dlgl.sipo.gov.cn/txnqueryAgencyOrg.do?loginIp%3Alogin_ip=192.168.102.148&select-key%3Aagencycode=&select-key%3Acnkeyword=&select-key%3AcurrentPage=".$page."&select-key%3Alocaloffice=".$area."&select-key%3Aprincipal=&select-key%3Astatus=1";
 				$result[] = $url;
 			}
 		}
+
 		return $result;	
 	}
 	/* (non-PHPdoc)
 	 * @see CParse::ArcUrlParse()
 	*/
-	public function ArcUrlParse($content) {
+	public function ArcUrlParse($content,$sourcePath="") {
 		// TODO: Auto-generated method stub
+		
+		//提取地区信息
+		$pattner = "~Alocaloffice=(.+)&~iU";
+		if(preg_match($pattner,$sourcePath,$match)){
+			$area = $match[1];
+			$area = $this->_area[$area];
+		}
+		$area || $area="";
+		$this->_curArea = $area;
+		
 		$pattner = '~<div class="indconb">(.+)</div>~isU';
 		if(!preg_match($pattner,$content,$match))  return false;
 		$content = $match[1];
@@ -59,8 +72,9 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 	
 	}
 	
-	public function ArcContentParse($content){
+	public function ArcContentParse($content,$sourcePath=""){
 		if(empty($content)) return false;
+		
 		$pattner = '~<div class="indcona">(.*)<\!--conb-->(.*)<\!--page-->~isU';
 		if(!preg_match($pattner,$content,$match)) return false;
 		$content = $match[1];
@@ -73,7 +87,8 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 			$titles[] = $title;
 			$values[] = $match[2][$key];
 		}
-		
+		$titles[] = "地区";
+		$values[] = $this->_curArea ;
 		$parttner = '~<div class="indcontb">(.*)</div>~isUu';
 		if(preg_match_all($parttner,$dlrContent,$match)){
 			$dlrContents = $match[1];

@@ -27,7 +27,7 @@ class CMysqlDataSave implements IDataSave{
 	 */
 	public function Save($data) {
 		// TODO Auto-generated method stub
-
+			
 		if(empty($data["title"]) || empty($data["value"])) throw new Exception("数据入库失败！入库数据格式不正确！");
 		if(!is_array($data["title"]) || count($data["title"]) == 0 || count($data["title"]) != @count($data["value"][0])) throw new Exception("数据入库失败！入库数据格式不正确！");	
 
@@ -40,7 +40,6 @@ class CMysqlDataSave implements IDataSave{
 			
 				if(is_array($value)){
 					$detailkey = $data["title"][$key];
-					unset($data["title"][$key]);
 					$detailTableName = $this->_detailTable[$detailkey];
 					$detailTableName || $detailTableName = $detailkey;
 					$detailTitle = $value["title"];
@@ -75,7 +74,7 @@ class CMysqlDataSave implements IDataSave{
 					$detailCreateSQL = trim($detailCreateSQL,",");
 					$detailCreateSQL .= ")";
 					//如果从表未被创建
-					if(!in_array($detailTableName,$this->_createdTables)){
+					if($detailTableName && !in_array($detailTableName,$this->_createdTables)){
 						$this->_db->query("SET NAMES GBK");
 						$this->_db->query($detailCreateSQL);
 						$this->_createdTables[] = $detailTableName;
@@ -87,6 +86,7 @@ class CMysqlDataSave implements IDataSave{
 					unset($data["title"][$key]);
 					continue;
 				}
+				if(in_array($data["title"],$this->_createdTables) ) continue;
 				$insertFields .= ",".$data['title'][$key];
 				$insertValues .= ",'".addslashes($value)."'";
 			}
@@ -97,6 +97,7 @@ class CMysqlDataSave implements IDataSave{
 			$insertSQL[] = array("sql"=>"INSERT INTO ".$this->_masterTable." (".$insertFields.") values($insertValues)","detailSQL"=>$insertDetailSQL);	
 		}
 		foreach($data["title"] as $field){
+			if(in_array($field,$this->_createdTables)) continue;
 			$field =  iconv("utf-8", "gb2312", $field);
 			$field = preg_replace("~\s~is","",$field);	
 			$field = str_replace("/","",$field);

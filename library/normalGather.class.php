@@ -19,7 +19,7 @@ class CNormalGather extends CGather implements ISubject{
 			$this->status["pageindex"]++;
 			$datalsit = array();
 			$content = $this->objParse->getUrlContent($url);
-			$arcUrls = $this->objParse->ArcUrlParse($content);
+			$arcUrls = $this->objParse->ArcUrlParse($content,$url);
 			if(!$arcUrls){
 				$this->objLog->PrintError("获取文章url失败！listUrl:".$url);
 				continue;
@@ -28,12 +28,12 @@ class CNormalGather extends CGather implements ISubject{
 			foreach($arcUrls as $acrUrl){
 				$arcContent = $this->objParse->getUrlContent($acrUrl);
 				if(!$arcContent){
-					$this->objLog->PrintError("获取文章内容失败！arcurl:".$url);
+					$this->objLog->PrintError("获取文章内容失败！arcurl:".$acrUrl);
 					continue;
 				}
-				$res =  $this->objParse->ArcContentParse($arcContent);
+				$res =  $this->objParse->ArcContentParse($arcContent,$acrUrl);
 				if(!$res){
-					$this->objLog->PrintError("解析文章内容失败！arcurl:".$url);
+					$this->objLog->PrintError("解析文章内容失败！arcurl:".$acrUrl);
 					continue;
 				}
 				if(!empty($res["title"]) && empty($datalsit["title"])) $datalsit["title"] = $res["title"];

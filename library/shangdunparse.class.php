@@ -32,16 +32,16 @@ class CShangDunParse extends CParse{
 	/* (non-PHPdoc)
 	 * @see Parse::ListUrlParse()
 	 */
-	public function ListUrlParse($content="") {
+	public function ListUrlParse($content=null,$sourcePath="") {
 		// TODO: Auto-generated method stub
 		$result = array();
 		//for($i=1;$i<=88437;$i++){
 		for($i=$this->startPage;$i<=$this->endPage;$i++){
 			$url = "http://www.shangdun.org/exploit/";
-			$post1 = "KTcx=".urlencode("ÇëÊäÈëÄúµÄ²éÑ¯ÄÚÈÝ");
-			$post1 .= "&md3=".urlencode("ÉêÇëÈË");
+			$post1 = "KTcx=".urlencode("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä²ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½");
+			$post1 .= "&md3=".urlencode("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 			$post1 .= "&PG3=$i";
-			$post1 .= "&sTypeSM2=".urlencode("ÉÌ±êÒÑ×¢²á");
+			$post1 .= "&sTypeSM2=".urlencode("ï¿½Ì±ï¿½ï¿½ï¿½×¢ï¿½ï¿½");
 			$post1 .= "&sTypeSMmark2=1";
 			$post1 .= "&BDdates=1";
 			$url .= "?".$post1;
@@ -53,7 +53,7 @@ class CShangDunParse extends CParse{
 	/* (non-PHPdoc)
 	 * @see Parse::ArcUrlParse()
 	 */
-	public function ArcUrlParse($content) {
+	public function ArcUrlParse($content,$sourcePath="") {
 		// TODO: Auto-generated method stub
 		$result = array();
 		if(!preg_match('~id="jumpShow"(.+)<\/form>~isU', $content,$matchs)) return false;
@@ -78,7 +78,7 @@ class CShangDunParse extends CParse{
 	/* (non-PHPdoc)
 	 * @see Parse::ArcContentParse()
 	 */
-	public function ArcContentParse($content) {
+	public function ArcContentParse($content,$sourcePath="") {
 		// TODO: Auto-generated method stub
 		$result = array();
 		if(!preg_match('~<div id="showDatas">(.*)</div>~isU', $content,$matchs)) return false;
@@ -86,11 +86,11 @@ class CShangDunParse extends CParse{
 		if(!preg_match_all('~<td class="(?:TBdt1|Timg1)">(.*)</td>.*<td class="(?:TBdt\d(?:\stdp)?|Timg\d)">(.*)</td>~isU', $content,$matchs)) return false;
 		foreach ($matchs[1] as $key=>$kValue){
 			$label = trim(strip_tags($kValue));
-			if($label == "ÉÌ±êÍ¼Ïñ"){
+			if($label == "ï¿½Ì±ï¿½Í¼ï¿½ï¿½"){
 				$value = "";
 				if(preg_match('~<img.*src="(.*)".*>~isU',$matchs[2][$key],$match)){
 					$value = $match[1];
-					$title[] = "Ô­Í¼µØÖ·";
+					$title[] = "Ô­Í¼ï¿½ï¿½Ö·";
 					$valueList[] = $value;
 					/*
 				 	$targetDir = dirname(dirname("__FILE__"))."/data/download/image";
