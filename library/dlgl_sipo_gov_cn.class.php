@@ -22,7 +22,7 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 	public function ListUrlParse($content = null) {
 		$url = "http://dlgl.sipo.gov.cn/txnqueryAgencyOrg.do";
 		$content = $this->getUrlContent($url);
-		if(!$content) die("��ȡ����ʧ�ܣ�URL��$url");
+		if(!$content) die("列表获取失败 $url");
 		$pattner = '~<table class="indcontcrltab">.+<tbody>(.+)</tbody>~isU';
 		
 		if(!preg_match($pattner, $content,$match)) return false;
@@ -94,12 +94,10 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 			
 				
 			}
+			$titles[] ="dlren";
+			$values[] = array("title"=>$detailTitles,"value"=>$detailValues);
 		}
-		
-		
-		$titles[] ="dlren";
-		$values[] = array("title"=>$detailTitles,"values"=>$detailValues);
-		
+
 		$result["title"] = $titles;
 		$result["value"] = $values;
 		return $result;

@@ -9,7 +9,7 @@ class CMysqlDataSave implements IDataSave{
 		$sql = "CREATE DATABASE IF NOT EXISTS $database";
 		$this->_db->query($sql);
 		$this->_db->select_database($database);
-		$this->masterTable = $masterTable;
+		$this->_masterTable = $masterTable;
 		$this->_createdTables = array();
 	}
 	
@@ -35,45 +35,48 @@ class CMysqlDataSave implements IDataSave{
 		foreach ($data["value"] as $dataKey=>$dataItem){
 			$insertFields =  "";
 			$insertValues = "";
+			$insertDetailSQL =  array();
 			foreach($dataItem as $key=>$value){
 			
 				if(is_array($value)){
 					$detailkey = $data["title"][$key];
+					unset($data["title"][$key]);
 					$detailTableName = $this->_detailTable[$detailkey];
 					$detailTableName || $detailTableName = $detailkey;
-				
-					$insertDetailValues = "%d";
-					$insertDetailSQL =  array();
 					$detailTitle = $value["title"];
 					$detailVlaues = $value["value"];
-					$insertDetailFields = "master_id";
-					
 					foreach($detailVlaues as $dValues){
+						$insertDetailFields = "master_id";
+						$insertDetailValues = "%d";
 						foreach($dValues as $dkey=>$dValue){
+							
 							if(!settype($dValue,"string")){
 								unset($detailTitle[$dkey]);
 								continue;
 							}
 							$insertDetailFields .= ",$detailTitle[$dkey]";
-							$insertDetailValues .=",'$dvalue'";
+							$insertDetailValues .=",'$dValue'";
 						}
 					
 						$insertDetailFields = trim($insertDetailFields,",");
 						$insertDetailValues = trim($insertDetailValues,",");
+						$insertDetailFields = preg_replace("~\s~is","",$insertDetailFields);	
 						$insertDetailSQL[] = "INSERT $detailTableName($insertDetailFields) values($insertDetailValues)";
 						
 					}
-	
 					$detailCreateSQL = "CREATE TABLE IF NOT EXISTS $detailTableName(did int(11) AUTO_INCREMENT PRIMARY KEY,master_id int(11) NOT NULL,";
 			
 					foreach($detailTitle as $title){
-						$title= preg_replace("/\s+/is","",$title);
+						$title = iconv("utf-8", "gb2312", $title);
+						$title= preg_replace("~\s~is","",$title);	
 						$detailCreateSQL .= "$title varchar(50),";
 					}
+					
 					$detailCreateSQL = trim($detailCreateSQL,",");
 					$detailCreateSQL .= ")";
 					//如果从表未被创建
 					if(!in_array($detailTableName,$this->_createdTables)){
+						$this->_db->query("SET NAMES GBK");
 						$this->_db->query($detailCreateSQL);
 						$this->_createdTables[] = $detailTableName;
 					}
@@ -89,32 +92,35 @@ class CMysqlDataSave implements IDataSave{
 			}
 			$insertFields = trim($insertFields,",");
 			$insertValues = trim($insertValues,",");
-			
-			$insertSQL[] =  "INSERT INTO ".$this->_masterTable." (".$insertFields.") values($insertValues)";	
+			$insertFields = preg_replace("~\s~is","",$insertFields);
+			$insertFields = str_replace("/","",$insertFields);
+			$insertSQL[] = array("sql"=>"INSERT INTO ".$this->_masterTable." (".$insertFields.") values($insertValues)","detailSQL"=>$insertDetailSQL);	
 		}
 		foreach($data["title"] as $field){
+			$field =  iconv("utf-8", "gb2312", $field);
+			$field = preg_replace("~\s~is","",$field);	
+			$field = str_replace("/","",$field);
 			$createMasterSQL .= ",".$field." VARCHAR(50)";
 		}
 		$createMasterSQL = trim($createMasterSQL,",");
-		$createMasterSQL = "CREATE TABLE IF NOT EXISTS ".$this->_masterTable."(mid int(11) AUTO_INCREMENT PRIMARY KEY ".$createMasterSQL.")";
-		die($createMasterSQL);
+		$createMasterSQL = " CREATE TABLE IF NOT EXISTS ".$this->_masterTable."(mid int(11) AUTO_INCREMENT PRIMARY KEY, ".$createMasterSQL.")";
 		if(!in_array($this->_masterTable,$this->_createdTables)){
+			$this->_db->query("SET NAMES GBK");
 			$this->_db->query($createMasterSQL);
 			$this->_createdTables[] = $this->_masterTable;
 		}
 		
-	
-		if(!$this->_db->query($sql)) throw new Exception("数据入库失败！");
-		$masterID = $this->_db->insert_id();
-		foreach ($insertDetailSQL as $key=>$sql){
-			$sql = sprintf($sql,$masterID);
-			$insertDetailSQL[$key] = $sql;
-		}
-		
-		$sql = implode(";", $insertDetailSQL);
-		$this->_db->query($sql);
-		var_dump("asdf");
-		die();
+	   foreach($insertSQL as $SQL){
+	   	  $sql = $SQL["sql"];
+	   	  $gbksql = iconv("utf-8", "gbk", $sql);
+	   	  $this->_db->query($gbksql);
+	   	  $id = $this->_db->insert_id();
+		  foreach($SQL["detailSQL"] as $dsql){
+		  	$gbkdsql = iconv("utf-8", "gbk", $dsql);
+		  	$dsql = sprintf($gbkdsql,$id);
+		  	$this->_db->query($dsql);
+		  } 
+	   }
 	}
 
 	/* (non-PHPdoc)
