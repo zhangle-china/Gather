@@ -88,11 +88,12 @@ class CShangDunParse extends CParse{
 		if(!preg_match_all('~<td class="(?:TBdt1|Timg1)">(.*)</td>.*<td class="(?:TBdt\d(?:\stdp)?|Timg\d)">(.*)</td>~isU', $content,$matchs)) return false;
 		foreach ($matchs[1] as $key=>$kValue){
 			$label = trim(strip_tags($kValue));
-			if($label == "商标图像"){
+			$utfLable = iconv("gbk","utf-8",$label);
+			if($utfLable == "商标图像"){
 				$value = "";
 				if(preg_match('~<img.*src="(.*)".*>~isU',$matchs[2][$key],$match)){
 					$value = $match[1];
-					$title[] = "原图地址";
+					$title[] = iconv("utf-8","gbk","原图地址");
 					$valueList[] = $value;
 					/*
 				 	$targetDir = dirname(dirname("__FILE__"))."/data/download/image";

@@ -10,7 +10,7 @@ if($params["endpage"] - $params["startpage"] === -1) $endFlag = true;
 $type = $params["param"]["type"];
 $type || $type = 0;
 $status = array(
-		array("label"=>"商标已注册","page"=>"86412"), 
+		array("label"=>"商标已注册","page"=>"86412"),
 		array("label"=>"商标已无效","page"=>"62394"), 
 		array("label"=>"商标注册申请完成","page"=>""), 
 		array("label"=>"商标注册申请等待受理通知书发文","page"=>""), 
@@ -66,13 +66,16 @@ $status = array(
 
 if($_POST){
 	if($endFlag) exit("数据已采集完毕！");
-	$log = new CLog();
+	$type = $status[$_POST["type"]]["label"];
+	
+	$log = new CLog(iconv("utf-8","gbk",$type));
 	$log->SetOutputType(LogOutputType::FILE);
+	
 	echo str_pad("",4098);
 	echo "----------------------------开始采集----------------------------------------<br>";
 	$start = $params["startpage"];
 	$end = $params["endpage"];
-	$type = $status[$_POST["type"]]["label"];
+	
 	$parse = new CShangDunParse($start,$end);
 	$parse->SetParam("type", $type);
 	$csvfile = $params["datafile"];

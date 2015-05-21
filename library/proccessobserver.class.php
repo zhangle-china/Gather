@@ -6,8 +6,8 @@ Class CProccessObserver implements IObserver {
 	 * @see IObserver::update()
 	 */
 	public function update($data) {
-		echo $data["startpage"]+$data["pageindex"].",";
-		if($data["pageindex"] % 10 === 0) echo "<br>";
+		echo $data["startpage"],",";
+		if($data["startpage"] % 30 === 0) echo "<br>";
 		ob_flush();
 		flush();
 		

@@ -17,24 +17,25 @@ class CNormalGather extends CGather implements ISubject{
 		$this->status["pageindex"]  = $i = 0;
 	
 		foreach($pages as $url){
-			$this->status["pageindex"]++;
+			$curPage = $this->status["startpage"];
+			$this->status["startpage"] = $this->status["startpage"] +1;
 			$datalsit = array();
 			$content = $this->objParse->getUrlContent($url);
 			$arcUrls = $this->objParse->ArcUrlParse($content,$url);
 			if(!$arcUrls){
-				$this->objLog->PrintError("获取文章url失败！listUrl:".$url);
+				$this->objLog->PrintError("页码：$curPage 获取文章url失败！listUrl:".$url);
 				continue;
 			}
 			
 			foreach($arcUrls as $acrUrl){
 				$arcContent = $this->objParse->getUrlContent($acrUrl);
 				if(!$arcContent){
-					$this->objLog->PrintError("获取文章内容失败！arcurl:".$acrUrl);
+					$this->objLog->PrintError("页码：$curPage 获取文章内容失败！arcurl:".$acrUrl);
 					continue;
 				}
 				$res =  $this->objParse->ArcContentParse($arcContent,$acrUrl);
 				if(!$res){
-					$this->objLog->PrintError("解析文章内容失败！arcurl:".$acrUrl);
+					$this->objLog->PrintError("页码：$curPage 解析文章内容失败！arcurl:".$acrUrl);
 					continue;
 				}
 				if(!empty($res["title"]) && empty($datalsit["title"])) $datalsit["title"] = $res["title"];
@@ -42,8 +43,7 @@ class CNormalGather extends CGather implements ISubject{
 			}	
 			try{	
 				$this->objDataSave->Save($datalsit);
-				$this->objLog->PrintNormal("成功采集到第".$this->status["startpage"]."页");
-				$this->status["startpage"] = $this->status["startpage"] +1;
+				$this->status["successpage"][] = $this->status["startpage"];
 				$this->status["datafile"] = $this->objDataSave->GetDataFile();
 				$this->notifiy();
 			}
