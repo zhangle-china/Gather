@@ -1,7 +1,8 @@
 <?php
 abstract class CParse{
-	protected  $startPage;
-	protected  $endPage;
+	protected $startPage;
+	protected $endPage;
+	protected $param;
 	function __construct($startPage,$endPage){
 		$this->startPage = $startPage;
 		$this->endPage = $endPage;
@@ -14,6 +15,14 @@ abstract class CParse{
 	
 	function getEndPageNum(){
 		return $this->endPage;
+	}
+	
+	function SetParam($varName,$varValue){
+		$this->param[$varName] = $varValue;
+	}
+	
+	function GetParam(){
+		return $this->param;
 	}
 	/**
 	 * �Ӹ�������н��������Զ���ҳ���ַ�б?

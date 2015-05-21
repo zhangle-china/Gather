@@ -1,6 +1,5 @@
 <?php
 class CShangDunParse extends CParse{
-
 	function __construct($startPage=0,$endPage=88437){
 		parent::__construct($startPage, $endPage);
 	}
@@ -29,7 +28,9 @@ class CShangDunParse extends CParse{
 	}
 
 	
-	/* (non-PHPdoc)
+	/**
+	 * 返回列表URL  需要调用SetParam方法，设置一个变量名为 type 的参数，其值为 商标的状态类型
+	 * (non-PHPdoc)
 	 * @see Parse::ListUrlParse()
 	 */
 	public function ListUrlParse($content=null,$sourcePath="") {
@@ -38,10 +39,10 @@ class CShangDunParse extends CParse{
 		//for($i=1;$i<=88437;$i++){
 		for($i=$this->startPage;$i<=$this->endPage;$i++){
 			$url = "http://www.shangdun.org/exploit/";
-			$post1 = "KTcx=".urlencode("��������Ĳ�ѯ����");
-			$post1 .= "&md3=".urlencode("������");
+			$post1 = "KTcx=".urlencode(iconv("utf-8", "gb2312", "请输入您的查询内容"));
+			$post1 .= "&md3=".urlencode(iconv("utf-8", "gb2312","申请人"));
 			$post1 .= "&PG3=$i";
-			$post1 .= "&sTypeSM2=".urlencode("�̱���ע��");
+			$post1 .= "&sTypeSM2=".urlencode(iconv("utf-8", "gb2312",$this->param["type"]));
 			$post1 .= "&sTypeSMmark2=1";
 			$post1 .= "&BDdates=1";
 			$url .= "?".$post1;
@@ -55,6 +56,7 @@ class CShangDunParse extends CParse{
 	 */
 	public function ArcUrlParse($content,$sourcePath="") {
 		// TODO: Auto-generated method stub
+		$content = iconv("gbk","utf-8",$content);
 		$result = array();
 		if(!preg_match('~id="jumpShow"(.+)<\/form>~isU', $content,$matchs)) return false;
 	
@@ -86,11 +88,11 @@ class CShangDunParse extends CParse{
 		if(!preg_match_all('~<td class="(?:TBdt1|Timg1)">(.*)</td>.*<td class="(?:TBdt\d(?:\stdp)?|Timg\d)">(.*)</td>~isU', $content,$matchs)) return false;
 		foreach ($matchs[1] as $key=>$kValue){
 			$label = trim(strip_tags($kValue));
-			if($label == "�̱�ͼ��"){
+			if($label == "商标图像"){
 				$value = "";
 				if(preg_match('~<img.*src="(.*)".*>~isU',$matchs[2][$key],$match)){
 					$value = $match[1];
-					$title[] = "ԭͼ��ַ";
+					$title[] = "原图地址";
 					$valueList[] = $value;
 					/*
 				 	$targetDir = dirname(dirname("__FILE__"))."/data/download/image";

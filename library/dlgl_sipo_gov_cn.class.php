@@ -6,7 +6,6 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 		// TODO: Auto-generated method stub
 		parent::__construct(0,0);
 	}
-
 	function getUrlContent($url){
 		$url = explode("?", $url);
 		if(isset($url[1]) && $url[1]) $param = $url[1];
@@ -22,7 +21,6 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 	public function ListUrlParse($content = null,$sourcePath="") {
 		$url = "http://dlgl.sipo.gov.cn/txnqueryAgencyOrg.do";
 		$content = $this->getUrlContent($url);
-		die($content);
 		if(!$content) die("列表获取失败 $url");
 		$pattner = '~<table class="indcontcrltab">.+<tbody>(.+)</tbody>~isU';
 		
@@ -36,7 +34,8 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 			$pageCount = intval($match[3][$key]);
 			$this->_area[$area] = $match[2][$key];
 			for($page=1;$page<=$pageCount;$page++){
-				$url = "http://dlgl.sipo.gov.cn/txnqueryAgencyOrg.do?loginIp%3Alogin_ip=192.168.102.148&select-key%3Aagencycode=&select-key%3Acnkeyword=&select-key%3AcurrentPage=".$page."&select-key%3Alocaloffice=".$area."&select-key%3Aprincipal=&select-key%3Astatus=1";
+				$loginIP = sprintf("%d.%d.%d.%d",rand(10,254),rand(10,254),rand(10,254),rand(10,254));
+				$url = "http://dlgl.sipo.gov.cn/txnqueryAgencyOrg.do?loginIp%3Alogin_ip=".$loginIP."&select-key%3Aagencycode=&select-key%3Acnkeyword=&select-key%3AcurrentPage=".$page."&select-key%3Alocaloffice=".$area."&select-key%3Aprincipal=&select-key%3Astatus=1";
 				$result[] = $url;
 			}
 		}
@@ -79,16 +78,17 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 		if(!preg_match($pattner,$content,$match)) return false;
 		$content = $match[1];
 		$dlrContent = $match[2];
-		$parttner = '~<span class="indconalr flleft">(.*)[\x{ff1a}]+.*</span>.* <span class="indconarl flright">(.*)</span>~isUu';
-		if(!preg_match_all($parttner,$content,$match)) die("error");
-		$titles = array();
+		
+		$titles = array("机构名称","机构代码","机构状态","成立日期","联系电话","电子邮箱","机构地址","传真","负责人","合伙人/股东","年度报告",);
 		$values = array();
-		foreach($match[1] as $key=>$title){
-			$titles[] = $title;
-			$values[] = $match[2][$key];
+		
+		foreach($titles as $key=>$title){
+			$values[$key] = $this->parseData($title, $content);
 		}
 		$titles[] = "地区";
 		$values[] = $this->_curArea ;
+		
+	
 		$parttner = '~<div class="indcontb">(.*)</div>~isUu';
 		if(preg_match_all($parttner,$dlrContent,$match)){
 			$dlrContents = $match[1];
@@ -115,9 +115,39 @@ class CDlgl_Sipo_Gov_Cn extends CParse{
 
 		$result["title"] = $titles;
 		$result["value"] = $values;
-		return $result;
+			return $result;
 	}
 	
+	
+	private function parseData($title,$content){
+		
+		$pattner = '~<span class="indconalr flleft">'.$title.'.* <span class="indconarl flright">(.*)</span>~isU';
+		preg_match($pattner,$content,$match);
+		$value = $match[1] ;
+		$value || $value = "";
+		return $value;
+	}
+	
+	
+	private function  utf8_unicode($name){  
+        $name = iconv('UTF-8', 'UCS-2', $name);  
+        $len  = strlen($name);  
+        $str  = '';  
+        for ($i = 0; $i < $len - 1; $i = $i + 2){  
+            $c  = $name[$i];  
+            $c2 = $name[$i + 1];  
+            if (ord($c) > 0){   //两个字节的文字  
+                $str .= '\u'.base_convert(ord($c), 10, 16).str_pad(base_convert(ord($c2), 10, 16), 2, 0, STR_PAD_LEFT);  
+                //$str .= base_convert(ord($c), 10, 16).str_pad(base_convert(ord($c2), 10, 16), 2, 0, STR_PAD_LEFT);  
+            } else {  
+                $str .= '\u'.str_pad(base_convert(ord($c2), 10, 16), 4, 0, STR_PAD_LEFT);  
+                //$str .= str_pad(base_convert(ord($c2), 10, 16), 4, 0, STR_PAD_LEFT);  
+            }  
+        }  
+        $str = strtoupper($str);//转换为大写  
+        return $str;  
+    }  
+  
 	
 
 

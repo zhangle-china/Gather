@@ -467,13 +467,14 @@ class CMySql
     {
         if ($message)
         {
-            echo "<b>MYSQL info</b>: $message\n\n<br /><br />";
+           throw new Exception("<b>MYSQL info</b>: $message\n\n<br /><br />") ;
             //print('<a href="http://faq.comsenz.com/?type=mysql&dberrno=2003&dberror=Can%27t%20connect%20to%20MySQL%20server%20on" target="_blank">http://faq.comsenz.com/</a>');
         }
         else
         {
-            echo "<b>MySQL server error report:";
-            print_r($this->error_message);
+            $msg = "<b>MySQL server error report:";
+            $msg .= print_r($this->error_message,true);
+            throw new Exception($msg);
             //echo "<br /><br /><a href='http://faq.comsenz.com/?type=mysql&dberrno=" . $this->error_message[3]['errno'] . "&dberror=" . urlencode($this->error_message[2]['error']) . "' target='_blank'>http://faq.comsenz.com/</a>";
         }
 

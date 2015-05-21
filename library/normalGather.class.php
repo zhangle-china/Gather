@@ -13,6 +13,7 @@ class CNormalGather extends CGather implements ISubject{
 		}
 		$this->status["startpage"] = $this->objParse->getStartPageNum();
 		$this->status["endpage"] = $this->objParse->getEndPageNum();
+		$this->status["param"] = $this->objParse->GetParam();
 		$this->status["pageindex"]  = $i = 0;
 	
 		foreach($pages as $url){
@@ -38,12 +39,17 @@ class CNormalGather extends CGather implements ISubject{
 				}
 				if(!empty($res["title"]) && empty($datalsit["title"])) $datalsit["title"] = $res["title"];
 				$datalsit["value"][] = $res["value"];
-			}		
-			$this->objDataSave->Save($datalsit);
-			$this->objLog->PrintNormal("成功采集到第".$this->status["startpage"]."页");
-			$this->status["startpage"] = $this->status["startpage"] +1;
-			$this->status["datafile"] = $this->objDataSave->GetDataFile();
-			$this->notifiy();
+			}	
+			try{	
+				$this->objDataSave->Save($datalsit);
+				$this->objLog->PrintNormal("成功采集到第".$this->status["startpage"]."页");
+				$this->status["startpage"] = $this->status["startpage"] +1;
+				$this->status["datafile"] = $this->objDataSave->GetDataFile();
+				$this->notifiy();
+			}
+			catch(Exception $e){
+				$this->objLog->PrintError($e->getMessage()." 第 ".$this->status["startpage"]."页");
+			}
 		}
 	}
 	

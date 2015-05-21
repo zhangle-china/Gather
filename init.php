@@ -1,5 +1,11 @@
 <?php
-error_reporting(E_ALL^E_WARNING^E_NOTICE);
+header("Content-type:text/html; charset=utf-8;");
+if(DEBUG){
+	 error_reporting(E_ALL^E_WARNING^E_NOTICE);
+}	 
+else{
+	error_reporting(0);
+}
 define(ROOT, dirname(__FILE__));
 require_once 'library/gather.class.php';
 require_once 'library/datasave.class.php';

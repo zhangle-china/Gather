@@ -27,7 +27,7 @@ class CMysqlDataSave implements IDataSave{
 	 */
 	public function Save($data) {
 		// TODO Auto-generated method stub
-			
+		
 		if(empty($data["title"]) || empty($data["value"])) throw new Exception("数据入库失败！入库数据格式不正确！");
 		if(!is_array($data["title"]) || count($data["title"]) == 0 || count($data["title"]) != @count($data["value"][0])) throw new Exception("数据入库失败！入库数据格式不正确！");	
 
@@ -54,7 +54,7 @@ class CMysqlDataSave implements IDataSave{
 								continue;
 							}
 							$insertDetailFields .= ",$detailTitle[$dkey]";
-							$insertDetailValues .=",'$dValue'";
+							$insertDetailValues .=",'".addslashes($dValue)."'";
 						}
 					
 						$insertDetailFields = trim($insertDetailFields,",");
@@ -86,7 +86,7 @@ class CMysqlDataSave implements IDataSave{
 					unset($data["title"][$key]);
 					continue;
 				}
-				if(in_array($data["title"],$this->_createdTables) ) continue;
+				if(in_array($data["title"][$key],$this->_createdTables) ) continue;
 				$insertFields .= ",".$data['title'][$key];
 				$insertValues .= ",'".addslashes($value)."'";
 			}
@@ -114,12 +114,32 @@ class CMysqlDataSave implements IDataSave{
 	   foreach($insertSQL as $SQL){
 	   	  $sql = $SQL["sql"];
 	   	  $gbksql = iconv("utf-8", "gbk", $sql);
-	   	  $this->_db->query($gbksql);
+	   	  try{
+	   	  	$this->_db->query($gbksql);
+	   	  }
+	   	  catch (Exception $e){
+	   	  	print_r($data);
+	   	  	echo "<br><br>------------------------------------------------------<br><br>";
+	   	  	echo $e->getMessage();
+	   	  	ob_flush();
+	   	  	flush();
+	   	  	continue;
+	   	  }
 	   	  $id = $this->_db->insert_id();
 		  foreach($SQL["detailSQL"] as $dsql){
 		  	$gbkdsql = iconv("utf-8", "gbk", $dsql);
 		  	$dsql = sprintf($gbkdsql,$id);
-		  	$this->_db->query($dsql);
+		  	try{
+		  		$this->_db->query($dsql);
+		  	}
+		  	catch (Exception $e){
+		  		print_r($data);
+		  		echo "<br><br>------------------------------------------------------<br><br>";
+		  		echo $e->getMessage();
+		  		ob_flush();
+		  		flush();
+		  		continue;
+		  	}
 		  } 
 	   }
 	}

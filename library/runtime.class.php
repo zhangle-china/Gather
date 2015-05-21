@@ -14,21 +14,21 @@ class CRunTime{
 
 	function get_time(){
 		$this->endTime = $this->get_cur_time();
-		return round(($this->endTime - $this->startTime) * 1000,1);  //Î¢Ãë
+		return round(($this->endTime - $this->startTime) * 1000,1);  //å¾®ç§’
 	}
 	function get_format_time(){
 		$this->endTime = $this->get_cur_time();
 		$time = ($this->endTime - $this->startTime) ;
-		if($time <1) return ($time * 1000)."Î¢Ãë";
-		if($time < 60) return $time ."Ãë";
-		if($time < 60*60) return floor ($time/60)."·ÖÖÓ".($time%60)."Ãë";
+		if($time <1) return ($time * 1000)."å¾®ç§’";
+		if($time < 60) return $time ."ç§’";
+		if($time < 60*60) return floor ($time/60)."åˆ†é’Ÿ".($time%60)."ç§’";
 		if($time < 60*60*24){
 			$h = floor($time/(60*60));
 			$time = $time%(60*60);
 			$i  = floor($time/60);
 			$time = $time%60;
 			$s = $time;
-			return $h."Ð¡Ê±".$i."·Ö".$s."Ãë";
+			return $h."å°æ—¶".$i."åˆ†".$s."ç§’";
 		}
 		if($time < 60*60*24*365){
 			$d = floor($time/(60*60*24));
@@ -38,7 +38,7 @@ class CRunTime{
 			$i  = floor($time/60);
 			$time = $time%60;
 			$s = $time;
-			return $d."Ìì".$h."Ð¡Ê±".$i."·Ö".$s."Ãë";
+			return $d."å¤©".$h."å°æ—¶".$i."åˆ†".$s."ç§’";
 		}
 	}
 }

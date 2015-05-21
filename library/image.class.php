@@ -17,13 +17,14 @@ class CImage{
 	static function CopyImage($source,$targetDir="",$targetFileName=""){
 		if(empty($targetDir)) $targetDir = dirname(__FILE__);
 		if(!is_dir($targetDir)) mkdir($targetDir,777,true);
-		if(!$imageInfo = @getimagesize($source)) return false;
+		if(!$imageInfo = @getimagesize($source)) throw new Exception("源文件无效：$source",10003);
 		list($w,$h,$type,$attr) = $imageInfo;
 		$fileType = self::$imageType[$type];
-		if(!isset($fileType)) return false;
+		if(!isset($fileType)) throw new Exception("非法的文件类型",10001);
 		$fileName = self::CreateFileName($fileType, $targetFileName);
 		$targetFile = $targetDir."/".$fileName;
+		if(file_exists($targetFile)) throw new Exception("目标文件已存在！",10000);
 		if(@copy($source, $targetFile)) return $targetFile;
-		return false; 	
+		throw new Exception("下载文件失败：$source",10002);	
 	}
 }

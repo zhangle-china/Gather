@@ -2,15 +2,18 @@
 class CCsvDataSave implements IDataSave{
 	private $fileName;
 	private $log;
-	function __construct($fileName = "",CLog $log){
+	function __construct($fileName = "",CLog $log,$dirName=""){
+		$fileName = iconv("utf-8","gbk",$fileName);
 		if(!empty($fileName)){
 			$this->fileName = $fileName;
 		}
 		else{
 			$this->fileName = dirname(dirname(__FILE__))."/data/data-".time().rand(1, 100000).".csv";
 		}
-		$dir = dirname($this->fileName);
-		if(!is_dir($dir)) mkdir($dir,777,true);
+		$dir = iconv("UTF-8","GBK",$dir);
+		if(!is_dir($dir)){
+			mkdir($dir,777,true);
+		}
 		
 		$file =  $this->fileName;
 		

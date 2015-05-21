@@ -2,14 +2,15 @@
 class CLog{
 	protected $outputType;
 	protected $logDir;
-	function __construct(){
+	function __construct($logDir = ""){
 		$this->outputType = LogOutputType::SCREEN;
 		$this->logDir = ROOT."/log/";
+		if($logDir)  $this->logDir = $this->logDir."/".trim($logDir,"/")."/";
 		if(!is_dir($this->logDir)) mkdir($this->logDir);
 	}
 	
 	/**
-	 * ÉèÖÃÊä³öÀàĞÍ
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @param const $value
 	 * @return null
 	 */
@@ -18,7 +19,7 @@ class CLog{
 		$this->outputType = $value;
 	}
 	/**
-	 * È¡µÃµ±Ç°µÄÈÕÖ¾Êä³öÀàĞÍ
+	 * È¡ï¿½Ãµï¿½Ç°ï¿½ï¿½ï¿½ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @return Ambigous <const, number>
 	 */
 	function GetOutputType(){
@@ -77,7 +78,7 @@ class LogOutputType{
 	const  FILE = 10011;
 	
 	/**
-	 * ·µ»ØÀàĞÍÁĞ±í
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ±ï¿½
 	 * @return array
 	 */
 	static function TypeList(){
@@ -91,7 +92,7 @@ class LogType{
 	const OTHER = 20013;
 	private static $StringList = array(self::ERROR=>"error",self::NORMAL=>"normal",self::WARNING=>"warning",self::OTHER=>"other");
 	/**
-	 * ·µ»ØÀàĞÍÁĞ±í
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ±ï¿½
 	 * @return array
 	 */
 	static function TypeList(){
@@ -100,9 +101,9 @@ class LogType{
 	}
 	
 	/**
-	 * ·µ»ØÈÕÖ¾ÀàĞÍµÄ×Ö·û´®±êÊ¶·û
-	 * @param const $type ÈÕÖ¾ÀàĞÍ
-	 * @return multitype:string |boolean ·Å»Ø¶ÔÓ¦ÀàĞÍµÄ±êÊ¶·û£¬Èç´«ÈëµÄÀàĞÍ²»ºÏ·¨£¬·µ»Øfalse;
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾ï¿½ï¿½ï¿½Íµï¿½ï¿½Ö·ï¿½ï¿½Ê¶ï¿½ï¿½
+	 * @param const $type ï¿½ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½
+	 * @return multitype:string |boolean ï¿½Å»Ø¶ï¿½Ó¦ï¿½ï¿½ï¿½ÍµÄ±ï¿½Ê¶ï¿½ï¿½ï¿½ç´«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í²ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½false;
 	 */
 	static function ToString($type){
 		if(isset(self::$StringList[$type])) return self::$StringList[$type];
