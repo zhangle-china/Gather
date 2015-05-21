@@ -31,11 +31,13 @@ class Download{
 			if(strtolower(substr($file, 0,5)) == "over_") continue; //已下载过的文件；
 			$file = trim($this->sourceDir,"/")."/".$file;
 			$type = strrchr($file,".");
+			if(is_dir($file)) continue;
+			
 			if($type != ".csv"){
 				$this->log->PrintError("非法的csv文件: $file");
 				continue;	
 			}
-			if(is_dir($file)) continue;
+			
 		
 			$breakLine = 0;
 			if(md5($file) == $param["file"] ) $breakLine= @intval($param["line"]);
