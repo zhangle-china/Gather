@@ -26,7 +26,7 @@ class Download{
 		$dh = opendir($this->sourceDir);
 		if(!$dh) die("打开数据源失败！");
 		$param = $this->config->Params();
-		while($file = readdir($dh)){
+		while(($file = readdir($dh)) !== false){
 			if(in_array($file,array(".",".."))) continue;
 			if(strtolower(substr($file, 0,5)) == "over_") continue; //已下载过的文件；
 			$file = trim($this->sourceDir,"/")."/".$file;
@@ -37,7 +37,8 @@ class Download{
 			}
 			if(is_dir($file)) continue;
 		
-			
+			$breakLine = 0;
+			if(md5($file) == $param["file"] ) $breakLine= @intval($param["line"]);
 			$fh = fopen($file, "r");
 			if(!$fh){
 				$this->log->PrintError("打开源文件失败：$file");
@@ -45,8 +46,11 @@ class Download{
 			}
 			$line = 0;
 			$errorNum = 0;
-			while($data = fgetcsv($fh)){
+			echo "<p><B>$file</B> 开始采集 ；</p>";
+			while(($data = fgetcsv($fh)) !== FALSE){
 				$line++;
+				if($breakLine && $line <= $breakLine) break; //上次程序中断时已采集到的行
+				if(!$data)  $this->log->PrintError("读取第$line行数据失败 :".$file);
 				$tmName = iconv("GBK","utf-8",$data[0]);
 				if($tmName == "商标名称") continue;
 				$tmNum = $data[1];
@@ -64,6 +68,9 @@ class Download{
 				try{
 					$filename = md5(md5($tmNum).md5($tmType));
 					$this->DownloadImg($poto,$filename,$tmNum);
+					$params["file"]= md5($file);
+					$params["line"] = $line;
+					$this->config->WriteConfig($params);
 					echo $line."[$tmName] <br>";
 					ob_flush();
 					flush();
@@ -89,13 +96,13 @@ class Download{
 					continue;
 				}
 			}
+			fclose($fh);
 			if($fh){
 				$basename = basename($file);
 				$newname = "over_".$basename;
 				$newname = dirname($file)."/".$newname;
 				rename($file, $newname);
 			}
-			fclose($fh);
 		}
 			
 			

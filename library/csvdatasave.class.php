@@ -3,14 +3,13 @@ class CCsvDataSave implements IDataSave{
 	private $fileName;
 	private $log;
 	function __construct($fileName = "",CLog $log,$dirName=""){
-		$fileName = iconv("utf-8","gbk",$fileName);
 		if(!empty($fileName)){
 			$this->fileName = $fileName;
 		}
 		else{
 			$this->fileName = dirname(dirname(__FILE__))."/data/data-".time().rand(1, 100000).".csv";
 		}
-		$dir = iconv("UTF-8","GBK",$dir);
+		$dir = dirname($this->fileName);
 		if(!is_dir($dir)){
 			mkdir($dir,777,true);
 		}
@@ -60,10 +59,13 @@ class CCsvDataSave implements IDataSave{
 		}
 		
 		$f = fopen($this->fileName,'a+');
+		if(!$f){
+			throw new Exception("打开目标文件失败，数据无法保存！");
+		}
 		if(empty($data["value"])) return false;
 		if(isset($data["title"]) && !$filesize){
 			if(!@fputcsv($f, $data["title"])){
-				$this->log->PrintError("writeTitleError：".implode("|", $v));
+				$this->log->PrintError("writeTitleError：".implode("|", $data["title"]));
 			}
 		}
 		foreach ($data["value"] as $v){

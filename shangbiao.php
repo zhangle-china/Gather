@@ -76,7 +76,7 @@ if($_POST){
 	$parse = new CShangDunParse($start,$end);
 	$parse->SetParam("type", $type);
 	$csvfile = $params["datafile"];
-	$csvfile = ROOT."/data/$type/data-".time()."-".rand(1, 100000).".csv";
+	$csvfile || $csvfile =iconv("utf-8","gbk",ROOT."/data/$type/data-".time()."-".rand(1, 100000).".csv");
 	$datasave = new CCsvDataSave($csvfile,$log);
 	$gather = new CNormalGather($log,$datasave,$parse);
 	$observer = new CObserver($config);
