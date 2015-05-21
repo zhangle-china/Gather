@@ -49,9 +49,10 @@ class Download{
 			$line = 0;
 			$errorNum = 0;
 			echo "<p><B>$file</B> 开始采集 ；</p>";
+			$this->log->PrintNormal("开始采集:file");
 			while(($data = fgetcsv($fh)) !== FALSE){
 				$line++;
-				if($breakLine && $line <= $breakLine) break; //上次程序中断时已采集到的行
+				if($breakLine && $line <= $breakLine) continue; //上次程序中断时已采集到的行
 				if(!$data)  $this->log->PrintError("读取第$line行数据失败 :".$file);
 				$tmName = iconv("GBK","utf-8",$data[0]);
 				if($tmName == "商标名称") continue;
@@ -91,7 +92,7 @@ class Download{
 						while(true){
 							$source = "http://img.shangdun.org/ImgShow.asp?R=5494164&T=14";
 							if(@getimagesize($source)) break;
-							sleep($seconds);
+							sleep(6000);
 						}
 						$errorNum = 0;
 					} 
