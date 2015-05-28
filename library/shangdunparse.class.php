@@ -38,7 +38,7 @@ class CShangDunParse extends CParse{
 		$result = array();
 		//for($i=1;$i<=88437;$i++){
 		for($i=$this->startPage;$i<=$this->endPage;$i++){
-			$url = "http://www.shangdun.org/exploit/";
+			$url = "http://sa.shangdun.org/exploit/";
 			$post1 = "KTcx=".urlencode(iconv("utf-8", "gb2312", "请输入您的查询内容"));
 			$post1 .= "&md3=".urlencode(iconv("utf-8", "gb2312","申请人"));
 			$post1 .= "&PG3=$i";
@@ -67,7 +67,7 @@ class CShangDunParse extends CParse{
 			$jumpshow = str_replace(array("jumpPageShow(",")"), "",$jumpshow);
 		    $jumpshow = str_replace("'", "", $jumpshow);
 			$param = explode(",", $jumpshow);
-			$url = "http://www.shangdun.org/show/";
+			$url = "http://sa.shangdun.org/show/";
 			$url .= "?NowIdOn=". intval($param[0]);
 			$url .=  "&NowCLOn=".  intval($param[1]);
 			$result[] = $url;
