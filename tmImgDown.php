@@ -89,6 +89,7 @@ class Download{
 					if($e->getCode() === 10003) $errorNum++;
 					//连续10次打不开源程序时，停止程序
 					if($errorNum > 10){
+						die("图片服务器无法访问，请稍后重试！");
 						while(true){
 							$source = "http://img.shangdun.org/ImgShow.asp?R=5494164&T=14";
 							if(@getimagesize($source)) break;

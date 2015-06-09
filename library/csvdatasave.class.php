@@ -60,7 +60,7 @@ class CCsvDataSave implements IDataSave{
 		
 		$f = fopen($this->fileName,'a+');
 		if(!$f){
-			throw new Exception("打开目标文件失败，数据无法保存！");
+			die(iconv("gbk","utf-8",$this->fileName));throw new Exception("打开目标文件失败，数据无法保存！");
 		}
 		if(empty($data["value"])) return false;
 		if(isset($data["title"]) && !$filesize){

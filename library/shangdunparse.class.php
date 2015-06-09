@@ -56,13 +56,13 @@ class CShangDunParse extends CParse{
 	 */
 	public function ArcUrlParse($content,$sourcePath="") {
 		// TODO: Auto-generated method stub
-		$content = iconv("gbk","utf-8",$content);
+		//die($content);
+		//$content = iconv("gbk","utf-8",$content);
+		//die($content);
 		$result = array();
 		if(!preg_match('~id="jumpShow"(.+)<\/form>~isU', $content,$matchs)) return false;
-	
 		$contnet = $matchs[1];
 		if(!preg_match_all("~(jumpPageShow\('\d+','\d+'\))~isU",$content,$matchs)) return false;
-	
 		foreach($matchs[1] as $jumpshow){
 			$jumpshow = str_replace(array("jumpPageShow(",")"), "",$jumpshow);
 		    $jumpshow = str_replace("'", "", $jumpshow);
@@ -82,6 +82,8 @@ class CShangDunParse extends CParse{
 	 */
 	public function ArcContentParse($content,$sourcePath="") {
 		// TODO: Auto-generated method stub
+		//$content = iconv("gbk","utf-8",$content);
+		//die($content);		
 		$result = array();
 		if(!preg_match('~<div id="showDatas">(.*)</div>~isU', $content,$matchs)) return false;
 		$content = $matchs[1];
@@ -89,7 +91,7 @@ class CShangDunParse extends CParse{
 		foreach ($matchs[1] as $key=>$kValue){
 			$label = trim(strip_tags($kValue));
 			$utfLable = iconv("gbk","utf-8",$label);
-			if($utfLable == "商标图像"){
+			if($utfLabel == "商标图像"){
 				$value = "";
 				if(preg_match('~<img.*src="(.*)".*>~isU',$matchs[2][$key],$match)){
 					$value = $match[1];
@@ -117,6 +119,7 @@ class CShangDunParse extends CParse{
 			$title[] = $label;
 			$valueList[] = $value;
 		}
+		
 		$result = array("title"=>$title,"value"=>$valueList);
 		return $result;
 	}

@@ -67,26 +67,24 @@ $status = array(
 if($_POST){
 	if($endFlag) exit("数据已采集完毕！");
 	$type = $status[$_POST["type"]]["label"];
-	
-	$log = new CLog(iconv("utf-8","gbk",$type));
+	$log = new CLog($_POST["type"]);
 	$log->SetOutputType(LogOutputType::FILE);
 	
 	echo str_pad("",4098);
 	echo "----------------------------开始采集----------------------------------------<br>";
 	$start = $params["startpage"];
 	$end = $params["endpage"];
-	
 	$parse = new CShangDunParse($start,$end);
+
 	$parse->SetParam("type", $type);
 	$csvfile = $params["datafile"];
-	$csvfile || $csvfile =iconv("utf-8","gbk",ROOT."/data/$type/data-".time()."-".rand(1, 100000).".csv");
+	$csvfile || $csvfile =iconv("utf-8","gbk",ROOT."/data/".$_POST["type"]."/data-".time()."-".rand(1, 100000).".csv");
 	$datasave = new CCsvDataSave($csvfile,$log);
 	$gather = new CNormalGather($log,$datasave,$parse);
 	$observer = new CObserver($config);
 	$gather->attach($observer);
 	$process = new CProccessObserver();
 	$gather->attach($process);
-	
 	$gather->Start();	
 	die("<script>window.location.href='shangbiao.php';</script>");
 }
@@ -98,10 +96,10 @@ if($_POST){
 		<?php 
 			foreach($status  as $key=>$value){
 				if($type == $value['label']){
-					echo "<option value='$key' selected='selected'>".$value['label']."</option>";
+					echo "<option value='$key' selected='selected'>".$key.":".$value['label']."</option>";
 				}
 				else{
-					echo "<option value='$key'>".$value['label']."</option>";
+					echo "<option value='$key'>".$key.":".$value['label']."</option>";
 				}
 			}
 		?>
