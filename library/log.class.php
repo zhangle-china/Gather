@@ -10,7 +10,6 @@ class CLog{
 		
 		if(!is_dir($this->logDir)){ 
 			mkdir($this->logDir,"777",true);
-			die($this->logDir);
 		}
 	}
 	
