@@ -59,10 +59,10 @@ class CShangDunParse extends CParse{
 		//die($content);
 		//$content = iconv("gbk","utf-8",$content);
 		//die($content);
+		if(!preg_match("~<table id=\"SearMoreList\">(.*)</table>~isU", $content,$match)) return false;
+		$content = $match[1];
 		$result = array();
-		if(!preg_match('~id="jumpShow"(.+)<\/form>~isU', $content,$matchs)) return false;
-		$contnet = $matchs[1];
-		if(!preg_match_all("~(jumpPageShow\('\d+','\d+'\))~isU",$content,$matchs)) return false;
+		if(!preg_match_all("~(jumpPageShow\('[a-zA-z]*\d+','\d+'\))~isU",$content,$matchs)) return false;
 		foreach($matchs[1] as $jumpshow){
 			$jumpshow = str_replace(array("jumpPageShow(",")"), "",$jumpshow);
 		    $jumpshow = str_replace("'", "", $jumpshow);
