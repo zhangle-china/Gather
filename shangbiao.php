@@ -1,12 +1,15 @@
 <?php
 require_once 'init.php';
+
 $config = new CConfig(ROOT."/data/config-shangdun.php");
 $params = $config->Params();
 intval($_REQUEST["s"]) && $params["startpage"] = intval($_REQUEST["s"]);
 intval($_REQUEST["e"]) && $params["endpage"] = intval($_REQUEST["e"]);
 $params["startpage"] ||$params["startpage"] = 1;
 $params["endpage"] || $params["endpage"] = 10000;
-if($params["endpage"] - $params["startpage"] === -1) $endFlag = true;
+if($params["endpage"] - $params["startpage"] === -1){
+ 	$endFlag = true;
+}
 $type = $params["param"]["type"];
 $type || $type = 0;
 $status = array(
@@ -77,7 +80,7 @@ if($_POST){
 	$parse = new CShangDunParse($start,$end);
 
 	$parse->SetParam("type", $type);
-	$csvfile = $params["datafile"];
+	$type == $params["param"]["type"] &&  $csvfile = $params["datafile"];
 	$csvfile || $csvfile =iconv("utf-8","gbk",ROOT."/data/".$_POST["type"]."/data-".time()."-".rand(1, 100000).".csv");
 	$datasave = new CCsvDataSave($csvfile,$log);
 	$gather = new CNormalGather($log,$datasave,$parse);
@@ -116,7 +119,8 @@ if($_POST){
 		<input type="submit" value="开始采集" >
 	<?php }else{ ?>
 		<input type="submit" value="开始采集" >
-	<?php }?>
+	<?php 
+	}?>
 	</p>
 		
 	

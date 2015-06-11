@@ -12,7 +12,12 @@ class CConfig{
 			mkdir($dir,777,true);
 		}
 	}
-	
+	function FileName(){
+		return $this->configFile;
+	}
+    function Clear(){
+    	unlink($this->$configFile);
+    }
 	private function NewFile(){
 		$dir = ROOT."/data/";
 		return $dir."config.php";
