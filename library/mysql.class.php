@@ -26,12 +26,12 @@ class CMySql
 
     var $mysql_disable_cache_tables = array(); // 涓嶅厑璁歌缂撳瓨鐨勮〃锛岄亣鍒板皢涓嶄細杩涜缂撳瓨
 
-    function __construct($dbhost, $dbuser, $dbpw, $dbname = '', $charset = 'utf-8', $pconnect = 0, $quiet = 0)
+    function __construct($dbhost, $dbuser, $dbpw, $dbname = '', $charset = 'utf8', $pconnect = 0, $quiet = 0)
     {
         $this->cls_mysql($dbhost, $dbuser, $dbpw, $dbname, $charset, $pconnect, $quiet);
     }
 
-    function cls_mysql($dbhost, $dbuser, $dbpw, $dbname = '', $charset = 'utf-8', $pconnect = 0, $quiet = 0)
+    function cls_mysql($dbhost, $dbuser, $dbpw, $dbname = '', $charset = 'utf8', $pconnect = 0, $quiet = 0)
     {
         if (defined('EC_CHARSET'))
         {

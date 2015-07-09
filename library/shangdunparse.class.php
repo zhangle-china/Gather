@@ -91,7 +91,7 @@ class CShangDunParse extends CParse{
 		foreach ($matchs[1] as $key=>$kValue){
 			$label = trim(strip_tags($kValue));
 			$utfLable = iconv("gbk","utf-8",$label);
-			if($utfLabel == "商标图像"){
+			if($utfLable == "商标图像"){
 				$value = "";
 				if(preg_match('~<img.*src="(.*)".*>~isU',$matchs[2][$key],$match)){
 					$value = $match[1];
@@ -119,7 +119,6 @@ class CShangDunParse extends CParse{
 			$title[] = $label;
 			$valueList[] = $value;
 		}
-		
 		$result = array("title"=>$title,"value"=>$valueList);
 		return $result;
 	}

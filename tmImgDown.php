@@ -47,9 +47,9 @@ class Download{
 				continue;
 			}
 			$line = 0;
-			$errorNum = 0;
+			$errorNum =  0;
 			echo "<p><B>$file</B> 开始采集 ；</p>";
-			$this->log->PrintNormal("开始采集:file");
+			$this->log->PrintNormal("开始采集:$file");
 			while(($data = fgetcsv($fh)) !== FALSE){
 				$line++;
 				if($breakLine && $line <= $breakLine) continue; //上次程序中断时已采集到的行
@@ -59,15 +59,22 @@ class Download{
 				$tmNum = $data[1];
 				$tmType = $data[2];
 				$poto = trim($data[8]);
+
+
+				if(empty($poto)){
+					if(!($poto =  $this->GetRemoteImage($tmNum,$tmType))){
+						die("图像为空: $tmName-$tmNum-$tmType");
+						$this->log->PrintError("图像为空: $tmName-$tmNum-$tmType");
+						continue;
+					}
+				}
+
 				$poto = str_replace(".chaxun9.com/", ".shangdun.org/", $poto);
 				if(empty($tmName) || !is_numeric($tmType) || empty($tmNum) || !is_numeric($tmNum)) {
 					$this->log->PrintError("[$tmName-$tmNum-$tmType] 商标基本信息不合法:".$file);
 					continue;
 				} 
-				if(empty($poto)){
-					$this->log->PrintError("图像为空: $tmName-$tmNum-$tmType");
-					continue;
-				}
+				
 				try{
 					$filename = md5(md5($tmNum).md5($tmType));
 					$this->DownloadImg($poto,$filename,$tmNum);
@@ -112,6 +119,17 @@ class Download{
 			
 	}
 
+	private function GetRemoteImage($tmNum,$tmType){
+
+		$parse = new CShangDunParse();
+
+		$url = "http://www.shangdun.org/show/";
+		$url .= "?NowIdOn=$tmNum&NowCLOn=$tmType";
+		$content = $parse->getUrlContent($url);
+		$data = $parse->ArcContentParse($content,$url);
+		if(!$data) return "";
+		return $data["value"][8];
+	}
 	
 	private function DownloadImg($from,$toFileName,$tmNum){
 		$targetDir = dirname(dirname("__FILE__"))."/data/download/image";
