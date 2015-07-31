@@ -52,7 +52,13 @@ class CNormalGather extends CGather implements ISubject{
 				}
 				$num = 0;
 				if(!empty($res["title"]) && empty($datalsit["title"])) $datalsit["title"] = $res["title"];
-				$datalsit["value"][] = $res["value"];
+				if($this->objParse->GetContentPageStyle() == "ARTICLE"){
+					$datalsit["value"][] = $res["value"];
+				}else{
+					foreach($res["value"] as $v){
+						$datalsit["value"][] = $v;
+					}
+				}
 			}	
 			try{	
 				$this->objDataSave->Save($datalsit);
@@ -81,4 +87,6 @@ class CNormalGather extends CGather implements ISubject{
 			$observer->update($this->status);
 		}
 	}
+	
+	
 }

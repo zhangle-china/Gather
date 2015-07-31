@@ -23,37 +23,43 @@ class Download{
 		$this->sourceDir = $sourceDir;
 	}
 	function Start(){
-		$dh = opendir($this->sourceDir);
+		$this->scan($this->sourceDir);
+			
+	}
+
+	private function scan($dir){
+		$dh = opendir($dir);
 		if(!$dh) die("打开数据源失败！");
 		$param = $this->config->Params();
 		while(($file = readdir($dh)) !== false){
 			if(in_array($file,array(".",".."))) continue;
 			if(strtolower(substr($file, 0,5)) == "over_") continue; //已下载过的文件；
-			$file = trim($this->sourceDir,"/")."/".$file;
+			$file = trim($dir,"/")."/".$file;
 			$type = strrchr($file,".");
-			if(is_dir($file)) continue;
+			if(is_dir($file)) $this->scan($file);
 			
 			if($type != ".csv"){
-				$this->log->PrintError("非法的csv文件: $file");
-				continue;	
+				continue;
 			}
 			
 		
 			$breakLine = 0;
 			if(md5($file) == $param["file"] ) $breakLine= @intval($param["line"]);
+			$utfFile = iconv("GB2312","utf-8",$file);
 			$fh = fopen($file, "r");
+		
 			if(!$fh){
-				$this->log->PrintError("打开源文件失败：$file");
+				$this->log->PrintError("打开源文件失败：$utfFile");
 				continue;
 			}
 			$line = 0;
 			$errorNum =  0;
-			echo "<p><B>$file</B> 开始采集 ；</p>";
-			$this->log->PrintNormal("开始采集:$file");
+			echo "<p><B>$utfFile</B> 开始采集 ；</p>";
+			$this->log->PrintNormal("开始采集:$utfFile");
 			while(($data = fgetcsv($fh)) !== FALSE){
 				$line++;
 				if($breakLine && $line <= $breakLine) continue; //上次程序中断时已采集到的行
-				if(!$data)  $this->log->PrintError("读取第$line行数据失败 :".$file);
+				if(!$data)  $this->log->PrintError("读取第$line行数据失败 :".$utfFile);
 				$tmName = iconv("GBK","utf-8",$data[0]);
 				if($tmName == "商标名称") continue;
 				$tmNum = $data[1];
@@ -96,7 +102,7 @@ class Download{
 					if($e->getCode() === 10003) $errorNum++;
 					//连续10次打不开源程序时，停止程序
 					if($errorNum > 10){
-						die("图片服务器无法访问，请稍后重试！");
+						die("图片服务器无法访问，请稍后重试！".$utfFile);
 						while(true){
 							$source = "http://img.shangdun.org/ImgShow.asp?R=5494164&T=14";
 							if(@getimagesize($source)) break;
@@ -115,8 +121,6 @@ class Download{
 				rename($file, $newname);
 			}
 		}
-			
-			
 	}
 
 	private function GetRemoteImage($tmNum,$tmType){
