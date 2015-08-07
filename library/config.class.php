@@ -4,12 +4,16 @@ class CConfig{
 	private $configFile;
 	
 	function __construct($configFile = ""){
+		
 		if(empty($configFile)){
 			$this->configFile = $this->NewFile();
 		}
-		$this->configFile = $configFile;
-		if(!($dir = dir($this->configFile))){
-			mkdir($dir,777,true);
+		else{
+			$configFile = ROOT."/".$configFile;
+			$this->configFile = $configFile;
+			if(!($dir = dir($this->configFile))){
+				mkdir($dir,777,true);
+			}
 		}
 	}
 	function FileName(){

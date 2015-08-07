@@ -1,6 +1,15 @@
 <?php
 interface IDataSave{
 	function Save($data);
-	function GetDataFile();
+	/**
+	 * 取得当前状态值
+	 */
+	function GetStatus();
+	
+	/**
+	 * 设置状态
+	 * @param Array $status
+	 */
+	function SetStatus($status);
 }
 

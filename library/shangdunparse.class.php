@@ -1,7 +1,11 @@
 <?php
 class CShangDunParse extends CParse{
+	protected $startPage;
+	protected $endPage;
+	
+	
 	function __construct($startPage=0,$endPage=88437){
-		parent::__construct($startPage, $endPage);
+		parent::__construct();
 	}
 	/* (non-PHPdoc)
 	 * @see CParse::getUrlContent()
@@ -21,6 +25,10 @@ class CShangDunParse extends CParse{
 				"Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
 				"Connection: keep-alive",
 		);
+		
+
+		
+		
 		$option[CURLOPT_POST] = 1;
  		$option[CURLOPT_POSTFIELDS] = $param;
 // 		$option[CURLOPT_POSTFIELDS] = "KTcx=%C7%EB%CA%E4%C8%EB%C4%FA%B5%C4%B2%E9%D1%AF%C4%DA%C8%DD&Md3=%C9%EA%C7%EB%C8%CB&PG3=2&sTypeSM2=%C9%CC%B1%EA%D2%D1%D7%A2%B2%E1&sTypeSMmark2=1&sYWsmark2=&SXSch=&jzrdSSch=&dlSch=&AreaSmSch=&HYktSch=&XZqxSch=&BDdates=1&SQdates=&GGpNums=&ZCdates=&JZdates=";		
@@ -122,6 +130,14 @@ class CShangDunParse extends CParse{
 		$result = array("title"=>$title,"value"=>$valueList);
 		return $result;
 	}
+	/* (non-PHPdoc)
+	 * @see CParse::DefaultCacheFile()
+	 */
+	protected function DefaultCacheFile() {
+		// TODO Auto-generated method stub
+		$this->cacheFile = "shangdunparse";
+	}
+
 	
 	
 

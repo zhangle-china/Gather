@@ -1,75 +1,89 @@
 <?php
 class CNormalGather extends CGather implements ISubject{
 	private $observerLsit;
-	private $status;
+
+	
+	
 	/* (non-PHPdoc)
 	 * @see CGather::Start()
 	 */
 	public function Start() {
 		// TODO: Auto-generated method stub
-		if(!($pages = $this->objParse->ListUrlParse())){
-			$this->objLog->PrintError("获取url列表失败！");
+		try{
+			$pages = $this->objParse->ListUrlParse();
+		}
+		catch(Exception $e){
+			$this->objLog->PrintError("获取url列表失败！原因：".$e->getMessage());
 			die();
 		}
-		$this->status["startpage"] = $this->objParse->getStartPageNum();
-		$this->status["endpage"] = $this->objParse->getEndPageNum();
-		$this->status["param"] = $this->objParse->GetParam();
-		$this->status["pageindex"]  = $i = 0;
-	
-		foreach($pages as $url){
-			$curPage = $this->status["startpage"];
-			$this->status["startpage"] = $this->status["startpage"] +1;
-			$datalsit = array();
-			$i = 0;
-			while(!($content = $this->objParse->getUrlContent($url))){
-				$i++;
-				if($i>50) die("服务其无法访问");			
+		$this->status["listIndex"] || $this->status["listIndex"] = 0;
+		$i = 0;
+		foreach($pages as $pageKey => $url){
+			if($this->status["listIndex"]>0 && $pageKey <= $this->status["listIndex"]) continue; //上次采集到的位置；断点续传；
+			try{
+				$arcUrls = $this->objParse->ArcUrlParse("",$url);
 			}
-			$arcUrls = $this->objParse->ArcUrlParse($content,$url);
-			if(!$arcUrls){
-				die("服务器无法打开 或 页面结构发生变化导致无法解析出文章地址！");
-				$this->objLog->PrintError("页码：$curPage 获取文章url失败！listUrl:".$url);
+			catch (Exception $e){
+				$i++;
+				$msg = "目标地址索引：".$this->status['listindex']."；解析文章地址出错； 错误原因：".$e->getMessage()."目标地址：".$url;
+				$this->objLog->PrintError($msg);
+				if($i>$this->allowErrNum) die($msg);
 				continue;
 			}
 			$num = 0;
-			foreach($arcUrls as $acrUrl){
-				$i = 0;
-				while(!($arcContent = $this->objParse->getUrlContent($acrUrl))){
-					$i++;
-					if($i>50) die("服务其无法访问");
+			settype($arcUrls, "array");
+			$this->status["arcListIndex"] || $this->status["arcListIndex"] = 0;
+			foreach($arcUrls as $arcKey=>$acrUrl){  
+				if($this->status["arcListIndex"] > 0 && $arcKey <= $this->status["arcListIndex"]) continue; //上次采集到的位置；断点续传；
+				$datalist = array();   
+				try{
+					$res =  $this->objParse->ArcContentParse("",$acrUrl);
 				}
-				if(!$arcContent){
-					$this->objLog->PrintError("页码：$curPage 获取文章内容失败！arcurl:".$acrUrl);
-					continue;
-				}
-				
-				$res =  $this->objParse->ArcContentParse($arcContent,$acrUrl);
-				if(!$res){
-					$this->objLog->PrintError("页码：$curPage 解析文章内容失败！arcurl:".$acrUrl);
+				catch (Exception $e){
+					$msg = "文章地址索引：".$this->status["arcListIndex"] ." 错误：".$e->getMessage().";  arcurl:".$acrUrl;
+					$this->objLog->PrintError($msg);
 					$num++;
-					if($num > 50) die("服务器无法打开 或 页面结构发生变化导致无法解析出 需要的数据！");
+					if($num > $this->allowErrNum) die($msg);
 					continue;
 				}
 				$num = 0;
-				if(!empty($res["title"]) && empty($datalsit["title"])) $datalsit["title"] = $res["title"];
+				if(!empty($res["title"]) && empty($datalist["title"])) $datalist["title"] = $res["title"];
 				if($this->objParse->GetContentPageStyle() == "ARTICLE"){
-					$datalsit["value"][] = $res["value"];
+					$datalist["value"][] = $res["value"];
 				}else{
 					foreach($res["value"] as $v){
-						$datalsit["value"][] = $v;
+						$datalist["value"][] = $v;
 					}
 				}
-			}	
-			try{	
-				$this->objDataSave->Save($datalsit);
-				$this->status["successpage"][] = $this->status["startpage"];
-				$this->status["datafile"] = $this->objDataSave->GetDataFile();
-				$this->notifiy();
+				try{
+					try{
+						$id = $this->objDataSave->Save($datalist);  //每一个文章页采集到的数据存储一次
+					}catch(Exception $e){
+						die($e->getMessage());
+					}
+					if($id && intval($id)){
+						$this->status["masterid"] = $id;  //主从数据采集时，主数据几记录的ID;
+					}
+					$this->status["sourceurl"] = $acrUrl;
+					$this->status = array_merge($this->status,$this->objDataSave->GetStatus());
+					$this->status["arcListIndex"]++;
+					$this->notifiy();
+				}
+				catch(Exception $e){
+					$this->objLog->PrintError($e->getMessage()." 第 ".$this->status["startpage"]."页");
+				}
+				
 			}
-			catch(Exception $e){
-				$this->objLog->PrintError($e->getMessage()." 第 ".$this->status["startpage"]."页");
-			}
+			$this->status["arcListIndex"] = 0;
+			$this->status["listIndex"] ++;	
 		}
+	}
+	
+	protected function FilterStatus($status){
+		$result = array();
+		is_numeric($status["arcListIndex"]) && $result["arcListIndex"] = $status["arcListIndex"];
+		$result = array_merge($result,parent::FilterStatus($status));
+		return $result;
 	}
 	
 	function attach($observer){
@@ -82,6 +96,10 @@ class CNormalGather extends CGather implements ISubject{
 		}
 	}
 	
+	/**
+	 * 状态更新通知；没采集一页，更新一次采集状态
+	 * @see ISubject::notifiy()
+	 */
 	function notifiy(){
 		foreach($this->observerLsit as $observer){
 			$observer->update($this->status);

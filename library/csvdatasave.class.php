@@ -2,6 +2,7 @@
 class CCsvDataSave implements IDataSave{
 	private $fileName;
 	private $log;
+	private $status;
 	function __construct($fileName = "",CLog $log,$dirName=""){
 		if(!empty($fileName)){
 			$this->fileName = $fileName;
@@ -15,17 +16,21 @@ class CCsvDataSave implements IDataSave{
 		}
 		
 		$file =  $this->fileName;
-		
-		
 		$this->log = $log;
+		$this->status["filename"] = $file ;
 	}
 	
 	function setFileName($fileName){
 		$this->fileName = $fileName;
 	}
 	
-	function GetDataFile(){
-		return $this->fileName;
+	function SetStatus($status){
+		$this->status = $status;
+		if($status["filename"])  $this->fileName = $status["filename"];
+	}
+	
+	function GetStatus(){
+		return $this->status;
 	}
 	function CreatePartFile($basefilename){
 		if(!function_exists("ch")){
@@ -51,11 +56,13 @@ class CCsvDataSave implements IDataSave{
 	 * @see IDataSave::Save()
 	 */
 	public function Save($data) {
+		
 		// TODO: Auto-generated method stub
 		clearstatcache();
 		$filesize = filesize($this->fileName);
 		if($filesize/pow(1024,2) > 10){ //如果文件大小大于10M，自动生成下一个文件
 			$this->fileName = $this->CreatePartFile($this->fileName);
+			$this->status["filename"] = $this->fileName;
 		}
 		
 		$f = fopen($this->fileName,'a+');

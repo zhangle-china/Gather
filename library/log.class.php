@@ -2,15 +2,12 @@
 class CLog{
 	protected $outputType;
 	protected $logDir;
-	function __construct($logDir = ""){
+	function __construct($logDir){
 		$this->outputType = LogOutputType::SCREEN;
-		$this->logDir = ROOT."/log/";
-		
-		if($logDir !== "")  $this->logDir = $this->logDir.trim($logDir,"/")."/";
-		
-		if(!is_dir($this->logDir)){ 
-			mkdir($this->logDir,"777",true);
-		}
+		if($logDir !== "" && is_dir($logDir))  
+			$this->logDir = trim($logDir,"/")."/";
+		else
+			throw ("错误的日志目录");
 	}
 	
 	/**
