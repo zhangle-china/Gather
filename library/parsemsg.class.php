@@ -2,6 +2,14 @@
 class ParseMsg{
 	
 	/**
+	 * 提取目标地址失败；
+	 * @return string
+	 */
+	static function FetchFailList(){
+		return "提取目标地址失败！";
+	}
+	
+	/**
 	 * 提取文章列表页内容 失败
 	 * @return string
 	 */
@@ -9,7 +17,7 @@ class ParseMsg{
 		return "提取文章列表页内容 失败！";		
 	}
 	
-	
+		
 	/**
 	 * 提取详情页内容失败
 	 * @return string

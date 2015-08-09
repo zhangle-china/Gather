@@ -1,4 +1,4 @@
-<?php 
+ <?php 
 /**
  * 分类采集
  */
@@ -91,8 +91,6 @@ class SecondParse extends FirstCategoryParse{
 		$result[] = $sourcePath."?cat=Case Law";
 		$result[] = $sourcePath."?cat=Legislation";
 		$result[] = $sourcePath."?cat=Materials";
-		
-		var_dump($result);
 		return $result;
 	}
 	
@@ -160,7 +158,6 @@ class ThreeParse extends FirstCategoryParse{
 }
 
 $firstProccess = new CProccessObserver("一级分类");
-$firstProccess->SetIsInline(false); //不在一行上显示进度；
 $firstParse = new FirstCategoryParse();
 $firstDs = new CMysqlDataSave("localhost", "root", "xtqiqi","low_aozhou","category");
 $firstTask = new CTask("austlii-edu-au-category-first", $firstParse);
@@ -168,13 +165,13 @@ $firstTask->attach($firstProccess);
 
 
 $secondProccess = new CProccessObserver("二级分类");
-$secondProccess->SetIsInline(false); //不在一行上显示进度；
 $secondParse = new SecondParse();
 $secondTask = new CTask("austlii-edu-au-category-second", $secondParse);
 $secondTask->attach($secondProccess);
 $secondTask->SetDataSave($firstDs);
 
 $threeProccess = new CProccessObserver("三级分类");
+$secondProccess->SetIsInline(false); //不在一行上显示进度；
 $threeParse = new ThreeParse();
 $threeTask = new CTask("austlii-edu-au-category-three", $threeParse);
 $threeTask->SetDataSave($firstDs);
@@ -188,7 +185,4 @@ $secondTask->attach($observerDetailThree);
 $threeTask->Run();
 $secondTask->Run();
 $firstTask->Run($firstDs);
-
-
-
 ?>;
