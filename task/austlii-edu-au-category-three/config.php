@@ -1,1 +1,0 @@
-a:8:{s:5:"cache";N;s:9:"cacheFile";s:73:"F:\AppServ\www\0-caiji/task/austlii-edu-au-category-three/cache/cache.tmp";s:10:"extendData";a:1:{s:8:"masterid";i:460;}s:13:"dataSourceUrl";s:47:"http://www.austlii.edu.au//au/wa/?cat=Materials";s:9:"listIndex";i:0;s:12:"arcListIndex";s:0:"";s:9:"sourceurl";s:0:"";s:8:"masterid";i:462;}
