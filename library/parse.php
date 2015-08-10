@@ -35,8 +35,8 @@ abstract class CParse {
 	
 	function InitStatus(){
 		$this->cache = true;
-		$this->status["extendData"] = "";
-		$this->status["dataSourceUrl"] = "";
+		$this->extendData= array();
+		$this->dataSourceUrl = "";
 	}
 	/**
 	 * 设置数据源地址，解析器可以以该地址为基础，解析出目标地址

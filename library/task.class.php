@@ -43,7 +43,7 @@ class CTask implements ITask, ISubject{
 	}
 	
 	function SetStatus($status){
-		$this->status = $this->FilterStatus($status);
+		$this->status = array_merge($this->status,$status);
 	}
 	
 	function GetSataus(){
@@ -66,6 +66,11 @@ class CTask implements ITask, ISubject{
 		$this->objDataSave = $dataSave;
 	}
 	
+	function SetParse(CParse $parse){
+		$this->parse = $parse;
+		$this->parse->SetStatus($this->status);
+	}
+	
 	/**
 	 * 启动任务；
 	 */
@@ -84,7 +89,7 @@ class CTask implements ITask, ISubject{
 		$this->status["listIndex"] || $this->status["listIndex"] = 0;
 		$i = 0;
 		foreach($pages as $pageKey => $url){
-			if($this->status["listIndex"]>0 && $pageKey <= $this->status["listIndex"]) continue; //上次采集到的位置；断点续传；
+			if($pageKey < $this->status["listIndex"]) continue; //上次采集到的位置；断点续传；
 			try{
 				$arcUrls = $this->objParse->ArcUrlParse("",$url);
 			}
@@ -98,8 +103,8 @@ class CTask implements ITask, ISubject{
 			$num = 0;
 			settype($arcUrls, "array");
 			$this->status["arcListIndex"] || $this->status["arcListIndex"] = 0;
-			foreach($arcUrls as $arcKey=>$acrUrl){  
-				if($this->status["arcListIndex"] > 0 && $arcKey <= $this->status["arcListIndex"]) continue; //上次采集到的位置；断点续传；
+			foreach($arcUrls as $arcKey=>$acrUrl){ 
+				if($arcKey < $this->status["arcListIndex"]) continue; //上次采集到的位置；断点续传；
 				$datalist = array();   
 				try{
 					$res =  $this->objParse->ArcContentParse("",$acrUrl);
@@ -134,6 +139,8 @@ class CTask implements ITask, ISubject{
 					$this->status["arcListIndex"]++;
 					$this->config->WriteConfig($this->status); //存储状态
 					$this->notifiy(); //发送状态变化通知；
+					
+					
 				}
 				catch(Exception $e){
 					$this->objLog->PrintError($e->getMessage()." 第 ".($this->status["listIndex"]+1)."页 第 ".($this->status["arcListIndex"] + 1)."篇文章");
@@ -141,6 +148,7 @@ class CTask implements ITask, ISubject{
 			}
 			$this->status["arcListIndex"] = 0;
 			$this->status["listIndex"] ++;	
+			$this->config->WriteConfig($this->status);
 		}
 		
 		/** 采集完毕，恢复初始状态！ */
@@ -162,18 +170,6 @@ class CTask implements ITask, ISubject{
 		return $this->objParse;
 	}
 	
-	
-	/**
-	 * 根据不同的采集器，过滤非法的状态值
-	 * @param Array $status
-	 * @return Array
-	 */
-	protected  function FilterStatus($status){
-		$result = array();
-		is_numeric($status["arcListIndex"]) && $result["arcListIndex"] = $status["arcListIndex"];
-		is_numeric($status["listIndex"]) &&  $result["listIndex"] =  $status["listIndex"];
-		return $result;
-	}
 	
 	function attach($observer){
 		$this->observerLsit[] = $observer;
