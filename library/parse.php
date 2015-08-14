@@ -13,6 +13,7 @@ abstract class CParse {
 		$this->contentPageStyle = "ARTICLE";
 		$this->cache = true;
 		$this->SetCacheFile($this->DefaultCacheFile());
+		$this->downloadDir = ROOT."/data/dowload/";
 	}
 	
 	function SetDownloadDir($dir){
@@ -20,16 +21,15 @@ abstract class CParse {
 		$this->downloadDir = $dir;
 	}
 	function SetStatus($status){
-		$status["cache"] && $this->cache=$status["cache"];
-		$status["cacheFile"] && $this->cacheFile=$status["cacheFile"];
-		$status["extendData"] && $this->extendData=$status["extendData"];
-		$status["dataSourceUrl"] && $this->dataSourceUrl=$status["dataSourceUrl"];
+		settype($this->status, "array");
+		$this->status = array_merge($this->status,$status);
 	}
 	function GetStatus(){
 		$this->status["cache"] = $this->cache;
 		$this->status["cacheFile"] = $this->cacheFile;
 		$this->status["extendData"] = $this->extendData;
 		$this->status["dataSourceUrl"] = $this->dataSourceUrl;
+		$this->status["downloadDir"] = $this->downloadDir;
 		return $this->status;
 	}
 	
@@ -187,5 +187,14 @@ abstract class CParse {
 	 */
 	abstract function ArcContentParse($content,$sourcePath="");
 	
+	/**
+	 * 特殊标签过滤
+	 * @param string $content
+	 * a  script frame  iframe  form
+	 */ 
+	protected function FilterTags($content){
+		$pattern = array('~<a.*>.*</a>~isU','~<script.*>.*</script>~isU','~<iframe.*>.*</iframe>~isU','~<frame.*>.*</frame>~isU','~<form.*>.*</form>~isU');	
+		return preg_replace($pattern, "", $content);	
+	}
 }
-
+?>

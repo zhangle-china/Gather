@@ -11,8 +11,8 @@ interface ITask{
 	 */
 	function GetParse();
 	function SetParse(CParse $parse);
-	function SetDataSource(IDataSave $ds);
-	function SetStauts($status);
+	function SetDataSave(IDataSave $ds);
+	function SetStatus($status);
 	function Run();
 }
 
@@ -28,11 +28,12 @@ interface IObserver{
 	function update($data);
 }
 
+
 /**
  *被观察者接口
  */
 interface ISubject{
-	function attach($observer);
-	function deAttch($observer);
+	function attach(IObserver $observer);
+	function deAttch(IObserver $observer);
 	function notifiy();
 }

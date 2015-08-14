@@ -30,12 +30,10 @@ class CTask implements ITask, ISubject{
     	$this->key = $key;
     	$this->config = new CConfig("task/$key/config.php");
     	$this->objLog = new CLog($this->taskDir);
+    	$this->objLog->SetOutputType(LogOutputType::FILE);
 		$this->status = $this->config ->Params();
 		$this->status || $this->status = array();
-		$this->objParse = $parse;
-		$cache = $this->taskDir."/cache/";
-		mkdir($cache,777,true);
-		$this->objParse->SetCacheFile($cache);
+		$this->SetParse($parse);
 		$downloadDir = $this->taskDir."/download";
 		mkdir($downloadDir,"777",true);
 		$this->objParse->SetDownloadDir($downloadDir);
@@ -67,8 +65,11 @@ class CTask implements ITask, ISubject{
 	}
 	
 	function SetParse(CParse $parse){
-		$this->parse = $parse;
-		$this->parse->SetStatus($this->status);
+		$this->objParse = $parse;
+		$cache = $this->taskDir."/cache/";
+		mkdir($cache,777,true);
+		$this->objParse->SetCacheFile($cache);
+		$this->objParse->SetStatus($this->status);
 	}
 	
 	/**
@@ -78,7 +79,13 @@ class CTask implements ITask, ISubject{
 		$dataSave && $this->SetDataSave($dataSave);
 		
 		try{
+			ob_start();
 			$pages = $this->objParse->ListUrlParse();
+			$logMsg = ob_get_contents();
+			ob_end_clean();
+			if($logMsg){
+				$this->objLog->PrintError(logMsg);
+			}
 			$this->status = array_merge($this->status,$this->objParse->GetStatus());
 			$this->config->WriteConfig($this->status);
 		}
@@ -98,6 +105,8 @@ class CTask implements ITask, ISubject{
 				$msg = "目标地址索引：".$this->status['listindex']."；解析文章地址出错； 错误原因：".$e->getMessage()."目标地址：".$url;
 				$this->objLog->PrintError($msg);
 				if($i>$this->allowErrNum) die($msg);
+				$this->status["listIndex"]++;
+				$this->config->WriteConfig($this->status); //存储状态
 				continue;
 			}
 			$num = 0;
@@ -114,6 +123,8 @@ class CTask implements ITask, ISubject{
 					$this->objLog->PrintError($msg);
 					$num++;
 					if($num > $this->allowErrNum) die($msg);
+					$this->status["arcListIndex"]++;
+					$this->config->WriteConfig($this->status); //存储状态
 					continue;
 				}
 				$num = 0;
@@ -171,11 +182,11 @@ class CTask implements ITask, ISubject{
 	}
 	
 	
-	function attach($observer){
-		$this->observerLsit[] = $observer;
+	function attach(IObserver $observer){
+		if($observer instanceof IObserver)	$this->observerLsit[] = $observer;
 	}
 	
-	function deAttch($observer){
+	function deAttch(IObserver $observer){
 		foreach($this->observerLsit as $key=>$o){
 			if($o == $observer) unset($this->observerLsit[$key]);
 		}
@@ -190,5 +201,6 @@ class CTask implements ITask, ISubject{
 			$observer->update($this->status);
 		}
 	}
+
 		
 }

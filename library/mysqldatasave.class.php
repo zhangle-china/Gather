@@ -31,14 +31,16 @@ class CMysqlDataSave implements IDataSave{
 			$insertFields =  "";
 			$insertValues = "";
 			$insertDetailSQL =  array();
+			$index = 0;
 			foreach($dataItem as $key=>$value){
 				if(!settype($value,"string")){ 
-					unset($data["title"][$key]);
+					unset($data["title"][$index]);
 					continue;
 				}
 				if(in_array($data["title"][$key],$this->_createdTables) ) continue;
-				$insertFields .= ",`".$data['title'][$key]."`";
+				$insertFields .= ",`".$data['title'][$index]."`";
 				$insertValues .= ",'".addslashes($value)."'";
+				$index++;
 			}
 			$insertFields = trim($insertFields,",");
 			$insertValues = trim($insertValues,",");

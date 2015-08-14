@@ -157,6 +157,7 @@ class ThreeParse extends FirstCategoryParse{
 	}
 }
 
+die("stop!");
 $firstProccess = new CProccessObserver("一级分类");
 $firstParse = new FirstCategoryParse();
 $firstDs = new CMysqlDataSave("localhost", "root", "xtqiqi","low_aozhou","category");
