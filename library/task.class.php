@@ -77,22 +77,27 @@ class CTask implements ITask, ISubject{
 	 */
 	function Run(IDataSave $dataSave = null){
 		$dataSave && $this->SetDataSave($dataSave);
-		
+
 		try{
 			ob_start();
+			if(DEBUG)   echo "<br>开始获取采集地址<br>";
 			$pages = $this->objParse->ListUrlParse();
+			
 			$logMsg = ob_get_contents();
 			ob_end_clean();
 			if($logMsg){
 				$this->objLog->PrintError(logMsg);
 			}
+			
 			$this->status = array_merge($this->status,$this->objParse->GetStatus());
 			$this->config->WriteConfig($this->status);
 		}
+		
 		catch(Exception $e){
 			$this->objLog->PrintError("获取url列表失败！原因：".$e->getMessage());
 			die();
 		}
+		
 		$this->status["listIndex"] || $this->status["listIndex"] = 0;
 		$i = 0;
 		foreach($pages as $pageKey => $url){
@@ -150,8 +155,6 @@ class CTask implements ITask, ISubject{
 					$this->status["arcListIndex"]++;
 					$this->config->WriteConfig($this->status); //存储状态
 					$this->notifiy(); //发送状态变化通知；
-					
-					
 				}
 				catch(Exception $e){
 					$this->objLog->PrintError($e->getMessage()." 第 ".($this->status["listIndex"]+1)."页 第 ".($this->status["arcListIndex"] + 1)."篇文章");

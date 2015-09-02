@@ -192,7 +192,7 @@ abstract class CParse {
 	 * @param string $content
 	 * a  script frame  iframe  form
 	 */ 
-	protected function FilterTags($content){
+	public function FilterTags($content){
 		$pattern = array('~<a.*>.*</a>~isU','~<script.*>.*</script>~isU','~<iframe.*>.*</iframe>~isU','~<frame.*>.*</frame>~isU','~<form.*>.*</form>~isU');	
 		return preg_replace($pattern, "", $content);	
 	}

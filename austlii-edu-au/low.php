@@ -86,14 +86,17 @@
 		}
 		
 		function ArcUrlParse($content,$sourcePath=""){
+		
 			$catid = $this->cats[md5($sourcePath)];
 			$this->extendData["catid"] = intval($catid);
 			!$content && $content = $this->getUrlContent($sourcePath);
 			if(!$content) throw New Exception(ParseMsg::FetchFailArcListContent());
+	
 			if(!preg_match('~<ul.*>(.+)</ul>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
 			$content = $match[1];
 			if(!preg_match_all('~<a href="(.+)">(.+)</a~isU', $content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
 			$result = array();
+			
 			foreach ($match[1] as $key=>$url){
 				$url = dirname($sourcePath)."/".$url;
 				$result[] = $url;
@@ -109,6 +112,7 @@
 			}
 			
 			!$content && $content = $this->getUrlContent($sourcePath);
+			
 			if(!$content) throw New Exception(ParseMsg::FetchFailArcContent());
 			if($result = $this->PdfPage($content,$sourcePath)){
 				return $result;
@@ -219,7 +223,14 @@
 					"Connection: keep-alive",
 					"Cache-Control: max-age=0"
 			);
-			return $this->XCurl($url,$option);
+			$option[CURLOPT_TIMEOUT] = 60;
+			$connectNum = 0;
+			$content = "";
+			while(!$content && $connectNum < 5){
+				$content = $this->XCurl($url,$option);
+				$connectNum++;
+			}
+			return $content;
 		}
 
 	}
@@ -249,8 +260,8 @@
 						$dContent = $self->getUrlContent($detailUrl);
 						preg_match("~<hr>(.*)<hr>~isU", $dContent,$dMatch);
 						$dContent =  $dMatch[1];
-						$dContent = $this->FilterTags($dContent);
-						$m[2] = $this->FilterTags($m[2]);
+						$dContent = $self->FilterTags($dContent);
+						$m[2] = $self->FilterTags($m[2]);
 						$data = str_replace(".html","",$m[1]);
 						$result = "<span class='item'><a href='javascript:;' class='low-m' data='".$data."'>".$m[2]."<span>";
 						$result .= "<div id='low-m-$data' style='' class='low-d'>$dContent</div>";
@@ -295,8 +306,11 @@
 		var $secondCats;
 		
 		function __construct(){
+
 			$db = new CMySql("localhost", "root", "xtqiqi","low_aozhou");
+
 			$this->category = new Category($db);
+		
 			$this->firstCats = $this->category->GetChildCategory(0);
 			$this->secondCats = $this->category->GetChildCategory($this->firstCats[0]["id"]); 
 			$_REQUEST["secondCat"] || $_REQUEST["secondCat"] = "case law";
@@ -308,6 +322,7 @@
 			$this->task->SetAllowErrNum(10);
 			$this->task->SetDataSave($ds);
 			$this->task->attach($observerProccess);
+	
 		}
 		
 		function onDefault(){
@@ -324,13 +339,16 @@
 		
 		function onRun(){
 			ini_set('pcre.backtrack_limit', 1000000);
+			
 			$_REQUEST["firstCat"] && $this->task->SetStatus(array("firstCat"=>$_REQUEST["firstCat"]));
 			$_REQUEST["secondCat"] && $this->task->SetStatus(array("secondCat" => $_REQUEST["secondCat"]));
 			if(!in_array(strtolower($_REQUEST["secondCat"]),array("case law","legislation","materials"))) throw new Exception("创建失败，错误的二级类型！");
 			$parse = FactoryParse::NewInstnace($_REQUEST["secondCat"]);
+			
 			$parse->SetStatus($this->task->GetSataus());
 			$this->task->SetParse($parse);
 			$this->task->Run();
+			
 		}
 	}
 	

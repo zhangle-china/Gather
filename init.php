@@ -18,8 +18,8 @@ require_once 'library/parsemsg.class.php';
 
 set_time_limit(0);
 function __autoload($classname){
+	$classname = strtolower($classname);
 	$classFile = ROOT."/library/".substr($classname, 1).".class.php";
-	$classFile = strtolower($classFile);
 	if(file_exists($classFile)){
 		require_once $classFile;
 	}
