@@ -339,9 +339,14 @@
 		
 		function onRun(){
 			ini_set('pcre.backtrack_limit', 1000000);
+			$status =   $this->task->GetSataus() ;
 			
-			$_REQUEST["firstCat"] && $this->task->SetStatus(array("firstCat"=>$_REQUEST["firstCat"]));
-			$_REQUEST["secondCat"] && $this->task->SetStatus(array("secondCat" => $_REQUEST["secondCat"]));
+			if($_REQUEST["firstCat"] && $_REQUEST["firstCat"]  != $status["firstCat"]){
+				$this->task->SetStatus(array("firstCat"=>$_REQUEST["firstCat"],"listIndex"=>0,"arcListIndex"=>0));
+			}
+			if($_REQUEST["secondCat"] && $_REQUEST["secondCat"] != $status["secondCat"] ){
+				$this->task->SetStatus(array("secondCat" => $_REQUEST["secondCat"],"listIndex"=>0,"arcListIndex"=>0));
+			}
 			if(!in_array(strtolower($_REQUEST["secondCat"]),array("case law","legislation","materials"))) throw new Exception("创建失败，错误的二级类型！");
 			$parse = FactoryParse::NewInstnace($_REQUEST["secondCat"]);
 			
