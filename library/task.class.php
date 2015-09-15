@@ -95,7 +95,7 @@ class CTask implements ITask, ISubject{
 		
 		catch(Exception $e){
 			$this->objLog->PrintError("获取url列表失败！原因：".$e->getMessage());
-			die();
+			die($e->getMessage());
 		}
 		
 		$this->status["listIndex"] || $this->status["listIndex"] = 0;

@@ -76,6 +76,7 @@
 				}
 				foreach ($match[1] as $detailUrl){
 					$targetUrl = rtrim($url,"/")."/".$detailUrl;
+					
 					$result[] = $targetUrl;
 					$this->cats[md5($targetUrl)] = $cat["id"];
 				}
@@ -86,22 +87,23 @@
 		}
 		
 		function ArcUrlParse($content,$sourcePath=""){
-		
 			$catid = $this->cats[md5($sourcePath)];
 			$this->extendData["catid"] = intval($catid);
 			!$content && $content = $this->getUrlContent($sourcePath);
 			if(!$content) throw New Exception(ParseMsg::FetchFailArcListContent());
-	
 			if(!preg_match('~<ul.*>(.+)</ul>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
 			$content = $match[1];
-			if(!preg_match_all('~<a href="(.+)">(.+)</a~isU', $content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
+			if(!preg_match_all('~<a href="?(.+)"?>(.+)</a~isU', $content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
 			$result = array();
 			
 			foreach ($match[1] as $key=>$url){
-				$url = dirname($sourcePath)."/".$url;
-				$result[] = $url;
+				$url = preg_replace("~\"|'~/is", "", $url);
+				$tarUrl = dirname($sourcePath)."/".$url;
+				if(preg_match("~^[/].*~is",$url)){
+					$tarUrl = "http://www.austlii.edu.au".$url;
+				}
+				$result[] = $tarUrl;
 				$this->titles[md5($url)] = $match[2][$key]; 
-				
 			}
 			return $result;
 		}
@@ -212,18 +214,24 @@
 		
 		public function getUrlContent($url) {
 			// TODO Auto-generated method stub
+			$ip = sprintf("%d,%d,%d,%d",round(10,200),round(10,200),round(10,200),round(10,200));
 			$option = array();
-			//$option[CURLOPT_HEADER] = 1;
+			$option[CURLOPT_HEADER] = 1;
 			$option[CURLOPT_HTTPHEADER] = array(
 					"Host: www.austlii.edu.au",
-					"User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0",
+					"User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:40.0) Gecko/20100101 Firefox/40.0",
 					"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 					"Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
 					"Accept-Encoding: gzip, deflate",
 					"Connection: keep-alive",
-					"Cache-Control: max-age=0"
+					"Proxy-Authorization:	Basic cm9zZTE5MTQyOTM3MDY6MTk5MjAxMTAwOTQy",
+					"Cache-Control: max-age=0",
+					'CLIENT-IP:'.$ip,
+					'X-FORWARDED-FOR:'.$ip
 			);
-			$option[CURLOPT_TIMEOUT] = 60;
+			//$option[CURLOPT_PROXY] = "";
+			
+		 //	$option[CURLOPT_TIMEOUT] = 120;
 			$connectNum = 0;
 			$content = "";
 			while(!$content && $connectNum < 5){
@@ -319,7 +327,7 @@
 			$ds = new CMysqlDataSave("localhost", "root", "xtqiqi","low_aozhou","low");
 			$observerProccess = new CProccessObserver("");
 			$this->task = new CTask("austlii-law", $parse);
-			$this->task->SetAllowErrNum(10);
+	//		$this->task->SetAllowErrNum(10);
 			$this->task->SetDataSave($ds);
 			$this->task->attach($observerProccess);
 	
@@ -343,6 +351,7 @@
 			
 			if($_REQUEST["firstCat"] && $_REQUEST["firstCat"]  != $status["firstCat"]){
 				$this->task->SetStatus(array("firstCat"=>$_REQUEST["firstCat"],"listIndex"=>0,"arcListIndex"=>0));
+				$this->task->SetStatus(array("secondCat" => $_REQUEST["secondCat"],"listIndex"=>0,"arcListIndex"=>0));
 			}
 			if($_REQUEST["secondCat"] && $_REQUEST["secondCat"] != $status["secondCat"] ){
 				$this->task->SetStatus(array("secondCat" => $_REQUEST["secondCat"],"listIndex"=>0,"arcListIndex"=>0));
@@ -352,6 +361,7 @@
 			
 			$parse->SetStatus($this->task->GetSataus());
 			$this->task->SetParse($parse);
+ 		//	$this->task->SetAllowErrNum(5);
 			$this->task->Run();
 			
 		}

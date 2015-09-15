@@ -60,12 +60,17 @@ abstract class CParse {
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION,TRUE);
 		if(is_array($option) && count($option)){
 			foreach($option  as $key=>$v){
 				curl_setopt($ch, $key, $v);
 			}
 		}
 		$output = curl_exec($ch);
+		if($errno = curl_errno($ch)) {
+			$error_message = curl_strerror($errno);
+			echo "cURL error ({$errno}):\n {$error_message}";
+		}
 		return $output;
 	}
 	

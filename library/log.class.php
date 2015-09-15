@@ -5,7 +5,7 @@ class CLog{
 	function __construct($logDir){
 		$this->outputType = LogOutputType::SCREEN;
 		if($logDir !== "" && is_dir($logDir))  
-			$this->logDir = trim($logDir,"/")."/";
+			$this->logDir = rtrim($logDir,"/")."/"; 
 		else
 			throw ("错误的日志目录");
 	}
