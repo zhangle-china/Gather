@@ -91,13 +91,13 @@
 			$this->extendData["catid"] = intval($catid);
 			!$content && $content = $this->getUrlContent($sourcePath);
 			if(!$content) throw New Exception(ParseMsg::FetchFailArcListContent());
-			if(!preg_match('~<ul.*>(.+)</ul>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
-			$content = $match[1];
-			if(!preg_match_all('~<a href="?(.+)"?>(.+)</a~isU', $content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
+		//	if(!preg_match('~<ul.*>(.+)</ul>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
+		//	$content = $match[1];
+			if(!preg_match_all('~<li.*><a href="(.+)".*>(.+)</a~isU', $content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
 			$result = array();
 			
 			foreach ($match[1] as $key=>$url){
-				$url = preg_replace("~\"|'~/is", "", $url);
+				$url = preg_replace("~\"|'~is", "", $url);
 				$tarUrl = dirname($sourcePath)."/".$url;
 				if(preg_match("~^[/].*~is",$url)){
 					$tarUrl = "http://www.austlii.edu.au".$url;
@@ -121,11 +121,15 @@
 			}	
 			
 			$title = array("title","content","year");
-			if(!preg_match("~<hr>(.+<hr>)~isU", $content,$match)) throw new Exception(ParseMsg::ParseFailData());
+			if(!preg_match("~<hr>(.+<\!\-\-begin footer\-\->)~isU", $content,$match)) {
+				if(!preg_match("~<hr>(.+<hr>)~isU", $content,$match)) throw new Exception(ParseMsg::ParseFailData());
+			}
 			$content = $match[1];
 			if(!preg_match("~<h2.*>(.*)</h2>~isU", $content,$match)) throw new Exception(ParseMsg::ParseFailData());
 			$value["title"] = $match[1];
-			if(!preg_match('~</h2>(.+)<hr>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailData());
+			if(!preg_match('~</h2>(.+)<\!\-\-begin footer\-\->~isU',$content,$match)) {
+				if(!preg_match('~</h2>(.+)<hr><!--begin footer-->~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailData());
+			}
 			$value["content"] = $this->FilterTags($match[1]);
 			
 			if(preg_match_all('~([1|2][0-9]{3})~i',$value["title"],$match))
@@ -361,7 +365,7 @@
 			
 			$parse->SetStatus($this->task->GetSataus());
 			$this->task->SetParse($parse);
- 		//	$this->task->SetAllowErrNum(5);
+ 			$this->task->SetAllowErrNum(1);
 			$this->task->Run();
 			
 		}
