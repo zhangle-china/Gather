@@ -10,9 +10,12 @@ interface ITask{
 	 * 返回此任务的解析器对象；
 	 */
 	function GetParse();
+	function GetTaskDir();
+	function GetLog();
 	function SetParse(CParse $parse);
 	function SetDataSave(IDataSave $ds);
 	function SetStatus($status);
+	function SetLog(CLog $log);
 	function Run();
 }
 

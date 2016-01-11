@@ -16,7 +16,9 @@ class CCsvDataSave implements IDataSave{
 		}
 		
 		$file =  $this->fileName;
+//		if(!$log instanceof CLog ) throw new Exception("错误的日志对象");
 		$this->log = $log;
+		
 		$this->status["filename"] = $file ;
 	}
 	
@@ -25,8 +27,10 @@ class CCsvDataSave implements IDataSave{
 	}
 	
 	function SetStatus($status){
-		$this->status = $status;
-		if($status["filename"])  $this->fileName = $status["filename"];
+		if($status["filename"]) {
+			$this->fileName = $status["filename"];
+			$this->status["filename"] = 	$this->fileName;
+		}
 	}
 	
 	function GetStatus(){
@@ -56,7 +60,6 @@ class CCsvDataSave implements IDataSave{
 	 * @see IDataSave::Save()
 	 */
 	public function Save($data) {
-		
 		// TODO: Auto-generated method stub
 		clearstatcache();
 		$filesize = filesize($this->fileName);

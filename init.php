@@ -1,6 +1,6 @@
 <?php
 header("Content-type:text/html; charset=utf-8;");
-define("DEBUG",false);
+if(!defined("DEBUG")) define("DEBUG",true);
 if(DEBUG){
 	 error_reporting(E_ALL^E_WARNING^E_NOTICE);
 }	 

@@ -99,7 +99,7 @@ abstract class CParse {
 			$tmpFile = $filename;
 		}
 		if(!strpos(basename($tmpFile),".")){
-			$tmpFile = trim($tmpFile,"/"). "/cache.tmp"; 
+			$tmpFile = rtrim($tmpFile,"/"). "/cache.tmp"; 
 		}
 		if(false === ($lastIndex = strrpos($tmpFile, ".")) || strtolower(substr($tmpFile, $lastIndex)) !== ".tmp" ){
 			$tmpFile = $tmpFile.".tmp";
@@ -111,7 +111,7 @@ abstract class CParse {
 	protected function Cache($key,$value){
 		if(!$this->cache) return false;
 		$cache = file_get_contents($this->cacheFile);
-		$cache = unserialize($cache);
+		$cache && $cache = unserialize($cache);
 		$cache[$key] = $value;
 		$cache = serialize($cache);
 		$f = fopen($this->cacheFile,"w");

@@ -4,12 +4,16 @@ class CLog{
 	protected $logDir;
 	function __construct($logDir){
 		$this->outputType = LogOutputType::SCREEN;
-		if($logDir !== "" && is_dir($logDir))  
+		if($logDir )  
 			$this->logDir = rtrim($logDir,"/")."/"; 
 		else
 			throw ("错误的日志目录");
 	}
 	
+	
+	function getLogFile(){
+		
+	}
 	/**
 	 * �����������
 	 * @param const $value

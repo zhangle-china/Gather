@@ -24,22 +24,30 @@ class CTask implements ITask, ISubject{
 	 * @var int
 	 */
 	protected $allowErrNum = 0;
-    function __construct($key,CParse $parse){
-    	$this->taskDir = ROOT."/task/".$key;
-    	mkdir($this->taskDir,777,true);
-    	$this->key = $key;
-    	$this->config = new CConfig("task/$key/config.php");
-    	$this->objLog = new CLog($this->taskDir);
-    	$this->objLog->SetOutputType(LogOutputType::FILE);
+    	function __construct($key,CParse $parse = null){
+    		$this->taskDir = ROOT."/task/".$key;
+    		mkdir($this->taskDir,777,true);
+    		$this->key = $key;
+    		$this->config = new CConfig("task/$key/config.php");
+    		$this->objLog = new CLog($this->taskDir);
+    		$this->objLog->SetOutputType(LogOutputType::FILE);
 		$this->status = $this->config ->Params();
 		$this->status || $this->status = array();
-		$this->SetParse($parse);
+		$parse && $this->SetParse($parse);
 		$downloadDir = $this->taskDir."/download";
 		mkdir($downloadDir,"777",true);
 		$this->objParse->SetDownloadDir($downloadDir);
 		$this->objParse->SetStatus($this->status); //将解析器设置为上次采集结束时的状态；
 	}
-	
+	function SetLog(CLog $log){
+		$this->objLog = $log;
+	}
+	function GetTaskDir(){
+		return $this->taskDir;
+	}
+	function GetLog(){
+	   return  $this->objLog;
+	}
 	function SetStatus($status){
 		$this->status = array_merge($this->status,$status);
 	}
@@ -48,6 +56,9 @@ class CTask implements ITask, ISubject{
 		return $this->status;
 	}
 	
+	function GetConfig(){
+		return $this->config;
+	}
 	/**
 	 * 设置容错数量
 	 * @param  $num
@@ -77,10 +88,12 @@ class CTask implements ITask, ISubject{
 	 */
 	function Run(IDataSave $dataSave = null){
 		$dataSave && $this->SetDataSave($dataSave);
-
 		try{
-			ob_start();
 			if(DEBUG)   echo "<br>开始获取采集地址<br>";
+			ob_flush();
+			flush();
+			ob_end_clean();
+			ob_start();
 			$pages = $this->objParse->ListUrlParse();
 			
 			$logMsg = ob_get_contents();
@@ -133,6 +146,10 @@ class CTask implements ITask, ISubject{
 					continue;
 				}
 				$num = 0;
+				if(!$res){
+					$this->status["arcListIndex"]++;
+					continue;
+				}
 				if(!empty($res["title"]) && empty($datalist["title"])) $datalist["title"] = $res["title"];
 				if($this->objParse->GetContentPageStyle() == "ARTICLE"){
 					$datalist["value"][] = $res["value"];
@@ -150,8 +167,9 @@ class CTask implements ITask, ISubject{
 					if($id && intval($id)){
 						$this->status["masterid"] = $id;  //主从数据采集时，主数据几记录的ID;
 					}
+					$dsStatus = $this->objDataSave->GetStatus();
 					$this->status["sourceurl"] = $acrUrl;
-					$this->status = array_merge($this->status,$this->objDataSave->GetStatus());
+					$dsStatus && $this->status = array_merge($this->status,$dsStatus);
 					$this->status["arcListIndex"]++;
 					$this->config->WriteConfig($this->status); //存储状态
 					$this->notifiy(); //发送状态变化通知；
@@ -160,6 +178,7 @@ class CTask implements ITask, ISubject{
 					$this->objLog->PrintError($e->getMessage()." 第 ".($this->status["listIndex"]+1)."页 第 ".($this->status["arcListIndex"] + 1)."篇文章");
 				}
 			}
+			$dsStatus = $this->objParse->GetStatus();
 			$this->status["arcListIndex"] = 0;
 			$this->status["listIndex"] ++;	
 			$this->config->WriteConfig($this->status);
@@ -169,9 +188,8 @@ class CTask implements ITask, ISubject{
 		$this->status["arcListIndex"] = 0 ;
 		$this->status["listIndex"]  = 0;
 		$this->status["sourceurl"] = "";
-		$this->status["arcListIndex"] = "";
 		$this->objParse->InitStatus();
-		$this->status = array_merge($this->status,$this->objParse->GetStatus());
+		$this->status = $this->status;
 		$this->config->WriteConfig($this->status); 
 	}
 	

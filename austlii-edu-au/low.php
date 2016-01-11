@@ -93,7 +93,7 @@
 			if(!$content) throw New Exception(ParseMsg::FetchFailArcListContent());
 		//	if(!preg_match('~<ul.*>(.+)</ul>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
 		//	$content = $match[1];
-			if(!preg_match_all('~<li.*><a href="(.+)".*>(.+)</a~isU', $content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
+			if(!preg_match_all('~<li.*><a href=["\'](.+)["\'].*>(.+)</a>~isU', $content,$match)) throw new Exception(ParseMsg::ParseFailArcUrl());
 			$result = array();
 			
 			foreach ($match[1] as $key=>$url){
@@ -119,18 +119,28 @@
 			if($result = $this->PdfPage($content,$sourcePath)){
 				return $result;
 			}	
-			
+			$sourceContent = $content;
 			$title = array("title","content","year");
 			if(!preg_match("~<hr>(.+<\!\-\-begin footer\-\->)~isU", $content,$match)) {
 				if(!preg_match("~<hr>(.+<hr>)~isU", $content,$match)) throw new Exception(ParseMsg::ParseFailData());
 			}
 			$content = $match[1];
-			if(!preg_match("~<h2.*>(.*)</h2>~isU", $content,$match)) throw new Exception(ParseMsg::ParseFailData());
-			$value["title"] = $match[1];
-			if(!preg_match('~</h2>(.+)<\!\-\-begin footer\-\->~isU',$content,$match)) {
-				if(!preg_match('~</h2>(.+)<hr><!--begin footer-->~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailData());
+			if(preg_match("~<h2.*>(.*)</h2>~isU", $content,$match)){ 
+				$value["title"] = $match[1];
+				if(!preg_match('~</h2>(.+)<\!\-\-begin footer\-\->~isU',$content,$match)) {
+					if(!preg_match('~</h2>(.+)<hr>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailData());
+				}
+				$value["content"] = $this->FilterTags($match[1]);
 			}
-			$value["content"] = $this->FilterTags($match[1]);
+			elseif (preg_match("~<title.*>(.*)</title>~isU", $sourceContent,$match)){
+				$value["title"] = $match[1];
+				if(!preg_match('~(.+)<\!\-\-begin footer\-\->~isU',$content,$match)) {
+					if(!preg_match('~(.+)<hr>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailData());
+				}
+				$value["content"] = $this->FilterTags($match[1]);
+			}else{
+				throw new Exception(ParseMsg::ParseFailData());
+			}
 			
 			if(preg_match_all('~([1|2][0-9]{3})~i',$value["title"],$match))
 				$value["year"] = array_pop($match[1]);
@@ -218,16 +228,22 @@
 		
 		public function getUrlContent($url) {
 			// TODO Auto-generated method stub
-			$ip = sprintf("%d,%d,%d,%d",round(10,200),round(10,200),round(10,200),round(10,200));
+			$ip = sprintf("%d,%d,%d,%d",rand(10,200),rand(10,200),rand(10,200),rand(10,200));
 			$option = array();
+// 			$option[CURLOPT_HTTPPROXYTUNNEL] = 1;
+// 			$option[CURLOPT_PROXY] = "https://43.241.218.32:3000";
+// 			$option[CURLOPT_PROXY] = "http://192.11.222.124:8000";
+// 			$option[CURLOPT_PROXYUSERPWD] = "[rose1914293706]:[199201100942]";
 			$option[CURLOPT_HEADER] = 1;
 			$option[CURLOPT_HTTPHEADER] = array(
 					"Host: www.austlii.edu.au",
-					"User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:40.0) Gecko/20100101 Firefox/40.0",
+					"User-Agent:Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0",
 					"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 					"Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
 					"Accept-Encoding: gzip, deflate",
 					"Connection: keep-alive",
+					"If-Modified-Since:Tue, 29 Jun 1999 09:20:52 GMT",
+					'If-None-Match:"418de3f-f67-34e6b628ce500"',
 					"Proxy-Authorization:	Basic cm9zZTE5MTQyOTM3MDY6MTk5MjAxMTAwOTQy",
 					"Cache-Control: max-age=0",
 					'CLIENT-IP:'.$ip,
@@ -235,7 +251,7 @@
 			);
 			//$option[CURLOPT_PROXY] = "";
 			
-		 //	$option[CURLOPT_TIMEOUT] = 120;
+		 	//$option[CURLOPT_TIMEOUT] = 120;
 			$connectNum = 0;
 			$content = "";
 			while(!$content && $connectNum < 5){
@@ -257,15 +273,26 @@
 			if(!$content) throw New Exception(ParseMsg::FetchFailArcContent());
 			if($result = $this->PdfPage($content,$sourcePath)){
 				return $result;
-			}	
+			}
+			
+			$soruceContent = $content;
 			if(!preg_match('~<hr.*>(.+<hr>)~isU', $content,$match)) throw new Exception(ParseMsg::ParseFailData());
 			$content = $match[1];
 				
 			$title = array("title","content","year");
-			if(!preg_match("~<h3>(.*)</h3>~isU", $content,$match)) throw new Exception(ParseMsg::ParseFailData());
-			$value["title"] = $match[1];
-			if(!preg_match('~</h3>(.+)<hr>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailData());
-			$content = $match[1];
+			if(preg_match("~<h3>(.*)</h3>~isU", $content,$match)){
+				$value["title"] = $match[1];
+				if(!preg_match('~</h3>(.+)<hr>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailData());
+				$content = $match[1];
+			}
+			elseif(preg_match("~<title>(.*)</title>~isU", $soruceContent,$match)){
+				$value["title"] = $match[1];
+				if(!preg_match('~(.+)<hr>~isU',$content,$match)) throw new Exception(ParseMsg::ParseFailData());
+				$content = $match[1];
+			}
+			else{
+				throw new Exception(ParseMsg::ParseFailData());
+			}
 			$self = $this;
 			$content = preg_replace_callback('~<a href="(s\d+.html)">(.+[\n\r])~isU',function($m) use($self,$sourcePath){
 						$detailUrl = $sourcePath."/".$m[1];
@@ -291,6 +318,7 @@
  				$value["catid"] = $this->extendData["catid"];
  			}
  			
+ 			$value["title"] = preg_replace("~\s~", "", $subject);
 			$result = array("title"=>$title,"value"=>$value);
 			return $result;
 		}
@@ -318,11 +346,8 @@
 		var $secondCats;
 		
 		function __construct(){
-
 			$db = new CMySql("localhost", "root", "xtqiqi","low_aozhou");
-
 			$this->category = new Category($db);
-		
 			$this->firstCats = $this->category->GetChildCategory(0);
 			$this->secondCats = $this->category->GetChildCategory($this->firstCats[0]["id"]); 
 			$_REQUEST["secondCat"] || $_REQUEST["secondCat"] = "case law";
@@ -352,7 +377,6 @@
 		function onRun(){
 			ini_set('pcre.backtrack_limit', 1000000);
 			$status =   $this->task->GetSataus() ;
-			
 			if($_REQUEST["firstCat"] && $_REQUEST["firstCat"]  != $status["firstCat"]){
 				$this->task->SetStatus(array("firstCat"=>$_REQUEST["firstCat"],"listIndex"=>0,"arcListIndex"=>0));
 				$this->task->SetStatus(array("secondCat" => $_REQUEST["secondCat"],"listIndex"=>0,"arcListIndex"=>0));
@@ -365,7 +389,7 @@
 			
 			$parse->SetStatus($this->task->GetSataus());
 			$this->task->SetParse($parse);
- 			$this->task->SetAllowErrNum(1);
+ 			$this->task->SetAllowErrNum(0);
 			$this->task->Run();
 			
 		}
